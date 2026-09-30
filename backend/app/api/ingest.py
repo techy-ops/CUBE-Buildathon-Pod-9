@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
 from sqlalchemy.orm import Session
 from typing import Optional, Dict, Any
 import json
@@ -12,18 +12,34 @@ router = APIRouter(prefix="", tags=["Ingestion"])
 
 @router.post("/ingest", response_model=IngestResult)
 async def ingest_data(
-    payload: Optional[IngestPayload] = None,
-    file: Optional[UploadFile] = File(None),
-    record_type: Optional[str] = Form(None),
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    Ingests operational / financial records via JSON body or uploaded CSV/JSON file.
+    Ingests operational / financial records via JSON body or multipart form (CSV/JSON file).
     Validates input using Pydantic and returns structured error reports rather than crashing.
     """
-    if file:
-        content = await file.read()
+    content_type = request.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            payload = IngestPayload(**body)
+            return IngestionService.ingest_dict(db, payload.model_dump())
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid JSON ingestion payload: {str(e)}")
+
+    elif "multipart/form-data" in content_type:
+        form = await request.form()
+        file = form.get("file")
+        record_type = form.get("record_type")
+
+        if not file or not hasattr(file, "filename"):
+            raise HTTPException(status_code=400, detail="Form upload requires a 'file' field")
+
         filename = file.filename.lower()
+        content = await file.read()
+
         if filename.endswith(".json"):
             try:
                 data = json.loads(content.decode("utf-8"))
@@ -36,7 +52,7 @@ async def ingest_data(
                     status_code=400,
                     detail="record_type (charges, orders, shipments, evidence) is required when uploading CSV"
                 )
-            rt = record_type.strip().lower()
+            rt = str(record_type).strip().lower()
             if rt not in {"charges", "orders", "shipments", "evidence"}:
                 raise HTTPException(
                     status_code=400,
@@ -49,10 +65,11 @@ async def ingest_data(
         else:
             raise HTTPException(status_code=400, detail="Uploaded file must be .json or .csv")
 
-    if payload:
-        return IngestionService.ingest_dict(db, payload.model_dump())
-
-    raise HTTPException(status_code=400, detail="Provide either a JSON payload or a file upload")
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Content-Type must be 'application/json' or 'multipart/form-data'"
+        )
 
 @router.post("/demo/seed", response_model=Dict[str, Any])
 def seed_demo_data(
