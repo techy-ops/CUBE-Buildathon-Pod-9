@@ -38,7 +38,7 @@ class Shipment(Base):
     order_id = Column(String(100), nullable=True, index=True)
     sku = Column(String(100), nullable=True, index=True)
     quantity = Column(Integer, nullable=False, default=1)
-    shipment_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    shipment_date = Column(DateTime, default=utc_now, nullable=False)
 
 
 class Evidence(Base):
@@ -51,7 +51,7 @@ class Evidence(Base):
     sku = Column(String(100), nullable=True, index=True)
     result = Column(String(50), nullable=False)  # PASS, FAIL, VERIFIED, DISCREPANCY, DAMAGED, INTACT, etc.
     description = Column(Text, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    timestamp = Column(DateTime, default=utc_now, nullable=False)
     source = Column(String(100), nullable=False)  # e.g., WMS-PrepStation-1, PackScan-02, DockScanner
     reference_data = Column(JSON, nullable=True)  # metadata / reference dictionary
 
@@ -65,6 +65,6 @@ class Assessment(Base):
     reason = Column(Text, nullable=False)
     claim_amount = Column(Float, nullable=False, default=0.0)
     evidence_ids = Column(JSON, nullable=False, default=list)  # List[str] of evidence_ids used
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
 
     charge = relationship("Charge", back_populates="assessment")
