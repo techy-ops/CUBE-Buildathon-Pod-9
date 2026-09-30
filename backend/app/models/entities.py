@@ -1,7 +1,9 @@
 from sqlalchemy import Column, String, Float, DateTime, Integer, Text, JSON, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
-from app.database import Base
+from datetime import datetime, timezone
+
+def utc_now():
+    return datetime.now(timezone.utc)
 
 class Charge(Base):
     __tablename__ = "charges"
@@ -13,7 +15,7 @@ class Charge(Base):
     reason = Column(String(255), nullable=False, index=True)
     amount = Column(Float, nullable=False)
     currency = Column(String(10), default="USD", nullable=False)
-    charge_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    charge_date = Column(DateTime, default=utc_now, nullable=False)
     status = Column(String(50), default="PENDING", nullable=False)  # PENDING, ASSESSED, etc.
 
     assessment = relationship("Assessment", back_populates="charge", uselist=False, cascade="all, delete-orphan")
