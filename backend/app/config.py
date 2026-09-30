@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ]
     HOST: str = "127.0.0.1"
     PORT: int = 8000
+    AUTH_SECRET: str = "recoveryos_phase1_super_secret_auth_key_2026"
 
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
