@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 
@@ -25,6 +25,8 @@ class ChargeCreate(ChargeBase):
     pass
 
 class AssessmentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     assessment_id: str
     charge_id: str
     verdict: str  # SUPPORTED, CONTRADICTED, SILENT
@@ -33,16 +35,12 @@ class AssessmentResponse(BaseModel):
     evidence_ids: List[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
-
 class ChargeResponse(ChargeBase):
+    model_config = ConfigDict(from_attributes=True)
+
     charge_date: datetime
     status: str
     assessment: Optional[AssessmentResponse] = None
-
-    class Config:
-        from_attributes = True
 
 # --- Order Schemas ---
 class OrderBase(BaseModel):
@@ -54,10 +52,9 @@ class OrderCreate(OrderBase):
     pass
 
 class OrderResponse(OrderBase):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    id: int
 
 # --- Shipment Schemas ---
 class ShipmentBase(BaseModel):
@@ -71,11 +68,10 @@ class ShipmentCreate(ShipmentBase):
     pass
 
 class ShipmentResponse(ShipmentBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     shipment_date: datetime
-
-    class Config:
-        from_attributes = True
 
 # --- Evidence Schemas ---
 class EvidenceBase(BaseModel):
@@ -103,10 +99,9 @@ class EvidenceCreate(EvidenceBase):
     pass
 
 class EvidenceResponse(EvidenceBase):
-    timestamp: datetime
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    timestamp: datetime
 
 # --- Assessment Schemas ---
 class AssessChargeResponse(BaseModel):
