@@ -176,3 +176,36 @@ export async function ingestFile(formData) {
   }
   return res.json();
 }
+
+// --- Phase 2 AI APIs ---
+export async function investigateChargeWithAI(chargeId) {
+  const res = await fetch(`${API_BASE}/ai/charges/${encodeURIComponent(chargeId)}/investigate`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'AI Investigation failed');
+  }
+  return res.json();
+}
+
+export async function fetchAICheck(chargeId) {
+  const res = await fetch(`${API_BASE}/ai/charges/${encodeURIComponent(chargeId)}`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'Failed to fetch AI assessment');
+  }
+  return res.json();
+}
+
+export async function fetchAIStatus() {
+  const res = await fetch(`${API_BASE}/ai/status`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) throw new Error('Failed to fetch AI status');
+  return res.json();
+}
+

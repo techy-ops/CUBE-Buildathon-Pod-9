@@ -1,7 +1,31 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { fetchCharges, fetchChargeDetail, fetchChargeEvidence, assessCharge } from '../services/api';
+import {
+  fetchCharges,
+  fetchChargeDetail,
+  fetchChargeEvidence,
+  assessCharge,
+  investigateChargeWithAI,
+  fetchAICheck
+} from '../services/api';
 import VerdictBadge from '../components/VerdictBadge';
-import { Search, Play, ExternalLink, X, ArrowRight, Layers, AlertCircle, RefreshCw, ChevronLeft, ChevronRight, MapPin, Clock } from 'lucide-react';
+import {
+  Search,
+  Play,
+  ExternalLink,
+  X,
+  ArrowRight,
+  Layers,
+  AlertCircle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Clock,
+  Sparkles,
+  Bot,
+  CheckCircle2,
+  AlertTriangle
+} from 'lucide-react';
 
 export default function Charges() {
   const [charges, setCharges] = useState([]);
@@ -18,6 +42,11 @@ export default function Charges() {
   const [chargeEvidence, setChargeEvidence] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [assessingId, setAssessingId] = useState(null);
+
+  // Phase 2 AI Investigation state
+  const [aiAssessment, setAiAssessment] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   const loadCharges = async () => {
     try {
@@ -42,6 +71,8 @@ export default function Charges() {
   // Open charge details modal
   const handleOpenDetail = async (chargeId) => {
     setDetailLoading(true);
+    setAiAssessment(null);
+    setAiError(null);
     try {
       const [detail, ev] = await Promise.all([
         fetchChargeDetail(chargeId),
@@ -49,6 +80,11 @@ export default function Charges() {
       ]);
       setSelectedCharge(detail);
       setChargeEvidence(ev);
+
+      // Check if an AI assessment exists for this charge
+      fetchAICheck(chargeId)
+        .then(setAiAssessment)
+        .catch(() => setAiAssessment(null));
     } catch (err) {
       alert(`Failed to load charge details: ${err.message}`);
     } finally {
@@ -59,9 +95,34 @@ export default function Charges() {
   const handleCloseDetail = () => {
     setSelectedCharge(null);
     setChargeEvidence(null);
+    setAiAssessment(null);
+    setAiError(null);
   };
 
-  // Re-assess charge
+  // Run AI Investigation
+  const handleAIInvestigate = async (chargeId) => {
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await investigateChargeWithAI(chargeId);
+      setAiAssessment(res);
+
+      // Refresh charge details and charges list so metrics reflect update
+      const [updatedDetail, updatedEv] = await Promise.all([
+        fetchChargeDetail(chargeId),
+        fetchChargeEvidence(chargeId)
+      ]);
+      setSelectedCharge(updatedDetail);
+      setChargeEvidence(updatedEv);
+      loadCharges();
+    } catch (err) {
+      setAiError(err.message || 'AI Investigation failed');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Re-assess charge deterministically
   const handleAssess = async (chargeId) => {
     setAssessingId(chargeId);
     try {
@@ -218,7 +279,7 @@ export default function Charges() {
                           <button
                             onClick={() => handleOpenDetail(chg.charge_id)}
                             className="btn btn-secondary btn-sm !py-1 !px-2 text-xs"
-                            title="View full evidence trace"
+                            title="View full evidence trace & AI investigation"
                           >
                             <ExternalLink className="h-3 w-3" />
                           </button>
@@ -317,6 +378,161 @@ export default function Charges() {
                 </div>
               </div>
 
+              {/* Requirement 11: AI Investigation Section */}
+              <div className="p-4 rounded-xl bg-slate-900/90 border border-blue-500/30 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-white">AI Investigation</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-semibold">
+                      Phase 2 Agent
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleAIInvestigate(selectedCharge.charge_id)}
+                    disabled={aiLoading}
+                    className="btn btn-primary btn-sm flex items-center gap-1.5"
+                    id="btn-ai-investigate"
+                  >
+                    <Bot className={`h-3.5 w-3.5 ${aiLoading ? 'animate-spin' : ''}`} />
+                    <span>{aiLoading ? 'Investigating with AI...' : 'Investigate with AI'}</span>
+                  </button>
+                </div>
+
+                {/* AI Loading State */}
+                {aiLoading && (
+                  <div className="p-5 flex flex-col items-center justify-center text-slate-400 space-y-2">
+                    <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
+                    <p className="text-xs text-slate-300 font-medium">
+                      Agent analyzing charge domain, ranking semantic evidence, and reasoning...
+                    </p>
+                  </div>
+                )}
+
+                {/* AI Error State */}
+                {aiError && (
+                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-500/30 text-red-300 text-xs flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+                    <span>{aiError}</span>
+                  </div>
+                )}
+
+                {/* AI Assessment Result */}
+                {aiAssessment && !aiLoading && (
+                  <div className="space-y-3.5 pt-1 text-xs">
+                    {/* Fallback Notice if AI was unavailable */}
+                    {aiAssessment.is_fallback && (
+                      <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-300 text-[11px] flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+                        <span>AI unavailable — deterministic assessment used.</span>
+                      </div>
+                    )}
+
+                    {/* AI Assessment Metrics Header */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-lg bg-slate-950 border border-slate-800">
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400">AI Verdict</div>
+                        <div className="mt-1">
+                          <VerdictBadge verdict={aiAssessment.verdict} claimAmount={aiAssessment.claim_amount} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400">Claim Amount</div>
+                        <div className="text-sm font-mono font-bold text-white mt-1">
+                          ${aiAssessment.claim_amount.toFixed(2)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400">Evidence Strength</div>
+                        <span className={`inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded ${
+                          aiAssessment.evidence_strength === 'STRONG' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' :
+                          aiAssessment.evidence_strength === 'MODERATE' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30' :
+                          aiAssessment.evidence_strength === 'WEAK' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30' :
+                          'bg-slate-800 text-slate-400'
+                        }`}>
+                          {aiAssessment.evidence_strength}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-semibold text-slate-400">Domain Category</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-1 capitalize">
+                          {aiAssessment.charge_category}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI Reasoning */}
+                    <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
+                      <div className="text-[11px] uppercase font-semibold text-slate-400">
+                        Reasoning & Findings
+                      </div>
+                      <p className="text-xs text-slate-200 leading-relaxed">
+                        {aiAssessment.reason}
+                      </p>
+                    </div>
+
+                    {/* Missing Information if applicable */}
+                    {aiAssessment.missing_information && aiAssessment.missing_information.length > 0 && (
+                      <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-500/30 text-amber-300 space-y-1">
+                        <div className="font-semibold text-[11px] uppercase flex items-center gap-1.5">
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          <span>Missing Information ({aiAssessment.missing_information.length})</span>
+                        </div>
+                        <ul className="text-[11px] space-y-1 pl-4 list-disc text-amber-200">
+                          {aiAssessment.missing_information.map((m, idx) => (
+                            <li key={idx}>{m}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Evidence Used List */}
+                    <div className="space-y-2">
+                      <div className="text-[11px] uppercase font-semibold text-slate-400">
+                        Evidence Used ({aiAssessment.evidence_details?.length || aiAssessment.evidence_ids?.length || 0})
+                      </div>
+                      {(!aiAssessment.evidence_details || aiAssessment.evidence_details.length === 0) ? (
+                        <div className="p-3 text-center text-slate-500 text-[11px] bg-slate-950 rounded border border-slate-800">
+                          No evidence records were attributed to this decision.
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {aiAssessment.evidence_details.map((ev) => {
+                            const resUpper = (ev.result || '').toUpperCase();
+                            const isPass = ['PASS', 'VERIFIED', 'INTACT', 'COMPLIANT'].includes(resUpper);
+                            const isFail = ['FAIL', 'FAILED', 'DAMAGED', 'DISCREPANCY'].includes(resUpper);
+
+                            return (
+                              <div key={ev.evidence_id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] space-y-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono font-bold text-blue-400">{ev.evidence_id}</span>
+                                    <span className="uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">{ev.evidence_type}</span>
+                                    <span className={`font-bold px-1.5 py-0.5 rounded ${
+                                      isPass ? 'bg-emerald-500/10 text-emerald-400' :
+                                      isFail ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-300'
+                                    }`}>
+                                      {ev.result}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 font-mono text-slate-400 text-[10px]">
+                                    <span>{ev.source}</span>
+                                    <span>•</span>
+                                    <span>{new Date(ev.timestamp).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                <p className="text-slate-300 text-xs">{ev.description}</p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Traceability Flow */}
               <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800">
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5 flex items-center gap-1.5">
@@ -368,16 +584,16 @@ export default function Charges() {
                 )}
               </div>
 
-              {/* Assessment Explanation */}
+              {/* Deterministic Decision Engine Evaluation */}
               <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800">
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                    Decision Engine Evaluation
+                    Deterministic Engine Baseline
                   </div>
                   <button
                     onClick={() => handleAssess(selectedCharge.charge_id)}
                     disabled={assessingId === selectedCharge.charge_id}
-                    className="btn btn-primary btn-sm !py-1 text-xs"
+                    className="btn btn-secondary btn-sm !py-1 text-xs"
                   >
                     <Play className={`h-3 w-3 ${assessingId === selectedCharge.charge_id ? 'animate-spin' : ''}`} />
                     <span>Re-evaluate</span>
