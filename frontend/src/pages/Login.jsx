@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(location.state?.prefillEmail || '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(location.state?.successMessage || null);
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
 
-    if (!email.trim() || !password) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
       setError('Please provide both email and password.');
       return;
     }
 
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await login(trimmedEmail, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Login failed. Please verify credentials.');
+      setError(err.message || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
@@ -38,7 +42,7 @@ export default function Login() {
       <div className="w-full max-w-md saas-card p-8 border border-slate-800 shadow-2xl">
         {/* Brand */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20">
+          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md">
             <ShieldCheck className="h-7 w-7" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">RecoveryOS</h1>
@@ -46,6 +50,14 @@ export default function Login() {
             Deterministic chargeback audit and evidence verification platform
           </p>
         </div>
+
+        {/* Success Alert (e.g. from registration) */}
+        {successMsg && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+            <span>{successMsg}</span>
+          </div>
+        )}
 
         {/* Error Alert */}
         {error && (
@@ -63,12 +75,14 @@ export default function Login() {
             </label>
             <input
               type="email"
+              name="email"
+              id="login-email-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="operator@company.com"
               className="form-input"
               required
-              autoFocus
+              autoFocus={!email}
             />
           </div>
 
@@ -87,6 +101,8 @@ export default function Login() {
             </div>
             <input
               type="password"
+              name="password"
+              id="login-password-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -97,6 +113,7 @@ export default function Login() {
 
           <button
             type="submit"
+            id="login-submit-btn"
             disabled={loading}
             className="w-full btn btn-primary mt-2"
           >
@@ -114,7 +131,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Forgot Password UI Modal */}
+      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="modal-overlay" onClick={() => setShowForgotModal(false)}>
           <div className="modal-card max-w-sm p-6 text-center" onClick={(e) => e.stopPropagation()}>

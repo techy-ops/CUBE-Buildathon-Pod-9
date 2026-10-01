@@ -319,22 +319,45 @@ export default function Charges() {
 
               {/* Traceability Flow */}
               <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2 flex items-center gap-1.5">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5 flex items-center gap-1.5">
                   <Layers className="h-3.5 w-3.5 text-blue-400" />
                   <span>Traceability Chain</span>
                 </div>
-                <div className="font-mono text-xs text-blue-300 p-2.5 rounded bg-slate-950 border border-slate-800 flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-slate-200">Charge ({selectedCharge.charge_id})</span>
-                  <ArrowRight className="h-3 w-3 text-slate-600" />
-                  <span>Shipment ({selectedCharge.resolution?.shipment_id || selectedCharge.shipment_id || 'unresolved'})</span>
-                  <ArrowRight className="h-3 w-3 text-slate-600" />
-                  <span>Order ({selectedCharge.resolution?.order_id || selectedCharge.order_id || 'unresolved'})</span>
-                  <ArrowRight className="h-3 w-3 text-slate-600" />
-                  <span>SKU ({selectedCharge.resolution?.sku || selectedCharge.sku || 'unresolved'})</span>
-                  <ArrowRight className="h-3 w-3 text-slate-600" />
-                  <span className="text-emerald-400">Evidence ({chargeEvidence?.relevant_count || 0})</span>
-                  <ArrowRight className="h-3 w-3 text-slate-600" />
-                  <span className="text-amber-400">Assessment ({selectedCharge.assessment?.verdict || 'PENDING'})</span>
+                <div className="traceability-chain">
+                  <div className="trace-node">
+                    <span className="text-slate-400">Charge:</span>
+                    <strong className="text-blue-400">{selectedCharge.charge_id}</strong>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 trace-arrow" />
+                  <div className="trace-node">
+                    <span className="text-slate-400">Shipment:</span>
+                    <strong>{selectedCharge.resolution?.shipment_id || selectedCharge.shipment_id || 'unresolved'}</strong>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 trace-arrow" />
+                  <div className="trace-node">
+                    <span className="text-slate-400">Order:</span>
+                    <strong>{selectedCharge.resolution?.order_id || selectedCharge.order_id || 'unresolved'}</strong>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 trace-arrow" />
+                  <div className="trace-node">
+                    <span className="text-slate-400">SKU:</span>
+                    <strong>{selectedCharge.resolution?.sku || selectedCharge.sku || 'unresolved'}</strong>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 trace-arrow" />
+                  <div className="trace-node">
+                    <span className="text-slate-400">Evidence:</span>
+                    <strong className="text-emerald-400">{(chargeEvidence?.relevant_evidence || selectedCharge.relevant_evidence || []).length} items</strong>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 trace-arrow" />
+                  <div className="trace-node">
+                    <span className="text-slate-400">Assessment:</span>
+                    <strong className={
+                      selectedCharge.assessment?.verdict === 'CONTRADICTED' ? 'text-red-400' :
+                      selectedCharge.assessment?.verdict === 'SUPPORTED' ? 'text-emerald-400' : 'text-slate-300'
+                    }>
+                      {selectedCharge.assessment?.verdict || 'PENDING'}
+                    </strong>
+                  </div>
                 </div>
                 {selectedCharge.resolution?.notes?.length > 0 && (
                   <div className="mt-2 text-[11px] text-slate-400 space-y-0.5">

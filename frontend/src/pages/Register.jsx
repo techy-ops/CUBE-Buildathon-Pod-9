@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { registerUser } from '../services/api';
 import { ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function Register() {
-  const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,15 +17,18 @@ export default function Register() {
     e.preventDefault();
     setError(null);
 
-    if (!fullName.trim()) {
-      setError('Please provide your full name.');
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName || trimmedName.length < 2) {
+      setError('Please provide a valid name (at least 2 characters).');
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       setError('Please provide a valid email address.');
       return;
     }
-    if (password.length < 6) {
+    if (!password || password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
     }
@@ -37,15 +39,23 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register({
-        full_name: fullName.trim(),
-        email: email.trim(),
+      await registerUser({
+        name: trimmedName,
+        full_name: trimmedName,
+        email: trimmedEmail,
         password,
         confirm_password: confirmPassword
       });
-      navigate('/dashboard');
+
+      // Requirement: Success → Login
+      navigate('/login', {
+        state: {
+          successMessage: 'Account registered successfully. Please log in with your credentials.',
+          prefillEmail: trimmedEmail
+        }
+      });
     } catch (err) {
-      setError(err.message || 'Registration failed.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,7 +66,7 @@ export default function Register() {
       <div className="w-full max-w-md saas-card p-8 border border-slate-800 shadow-2xl">
         {/* Brand */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md shadow-blue-500/20">
+          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white mb-3 shadow-md">
             <ShieldCheck className="h-7 w-7" />
           </div>
           <h1 className="text-xl font-bold text-white tracking-tight">Create RecoveryOS Account</h1>
@@ -73,16 +83,18 @@ export default function Register() {
           </div>
         )}
 
-        {/* Form */}
+        {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
             <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">
-              Full Name
+              Name
             </label>
             <input
               type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              name="name"
+              id="name-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Alex Morgan"
               className="form-input"
               required
@@ -96,6 +108,8 @@ export default function Register() {
             </label>
             <input
               type="email"
+              name="email"
+              id="email-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="alex@company.com"
@@ -110,6 +124,8 @@ export default function Register() {
             </label>
             <input
               type="password"
+              name="password"
+              id="password-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
@@ -124,6 +140,8 @@ export default function Register() {
             </label>
             <input
               type="password"
+              name="confirm_password"
+              id="confirm-password-input"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
@@ -134,6 +152,7 @@ export default function Register() {
 
           <button
             type="submit"
+            id="register-submit-btn"
             disabled={loading}
             className="w-full btn btn-primary mt-2"
           >

@@ -24,6 +24,7 @@ export default function Ingestion() {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [lastSubmissionMeta, setLastSubmissionMeta] = useState(null);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -63,11 +64,18 @@ export default function Ingestion() {
         }
         const formData = new FormData();
         formData.append('file', selectedFile);
-        if (selectedFile.name.toLowerCase().endsWith('.csv')) {
+        const isCsv = selectedFile.name.toLowerCase().endsWith('.csv');
+        if (isCsv) {
           formData.append('record_type', recordType);
         }
+
         const res = await ingestFile(formData);
         setResult(res);
+        setLastSubmissionMeta({
+          filename: selectedFile.name,
+          type: isCsv ? `CSV (${recordType})` : 'JSON file',
+          timestamp: new Date().toLocaleTimeString()
+        });
       } else {
         let parsed;
         try {
@@ -77,6 +85,11 @@ export default function Ingestion() {
         }
         const res = await ingestJson(parsed);
         setResult(res);
+        setLastSubmissionMeta({
+          filename: 'payload.json (raw)',
+          type: 'JSON payload',
+          timestamp: new Date().toLocaleTimeString()
+        });
       }
     } catch (err) {
       setError(err.message || 'Ingestion failed');
@@ -84,6 +97,13 @@ export default function Ingestion() {
       setLoading(false);
     }
   };
+
+  const totalImported = result
+    ? (result.charges_ingested || 0) +
+      (result.orders_ingested || 0) +
+      (result.shipments_ingested || 0) +
+      (result.evidence_ingested || 0)
+    : 0;
 
   return (
     <div className="page-container space-y-6">
@@ -210,14 +230,35 @@ export default function Ingestion() {
           </h2>
 
           {result ? (
-            <div className="space-y-4 text-xs">
+            <div className="space-y-3.5 text-xs">
               <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 flex items-center gap-2 text-emerald-400 font-semibold">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>Batch Processed Successfully</span>
+                <span>Batch Processed ({totalImported} Records)</span>
+              </div>
+
+              {/* Requirement: Show filename, type, validation, imported records and errors */}
+              <div className="p-3 rounded bg-slate-950 border border-slate-800 space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-medium">Filename:</span>
+                  <span className="font-mono font-semibold text-white">{lastSubmissionMeta?.filename}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-medium">Type:</span>
+                  <span className="font-mono text-blue-400">{lastSubmissionMeta?.type}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400 font-medium">Validation:</span>
+                  <span className={`font-semibold ${result.errors && result.errors.length > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {result.errors && result.errors.length > 0 ? 'Validation Warnings' : 'Schema Validated (Pass)'}
+                  </span>
+                </div>
               </div>
 
               {/* Records imported breakdown */}
-              <div className="space-y-2 font-mono text-slate-300">
+              <div className="space-y-1.5 font-mono text-slate-300">
+                <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1">
+                  Imported Records Breakdown
+                </div>
                 <div className="flex justify-between py-1 border-b border-slate-800">
                   <span className="text-slate-400">Charges Imported:</span>
                   <span className="font-bold text-white">{result.charges_ingested}</span>
@@ -236,10 +277,10 @@ export default function Ingestion() {
                 </div>
               </div>
 
-              {/* Validation errors/warnings if any */}
+              {/* Errors breakdown */}
               {result.errors && result.errors.length > 0 ? (
                 <div className="p-3 rounded bg-amber-950/20 border border-amber-500/30 text-amber-300 space-y-1">
-                  <div className="font-bold">Validation Warnings ({result.errors.length}):</div>
+                  <div className="font-bold">Errors / Warnings ({result.errors.length}):</div>
                   <div className="text-[11px] space-y-1 max-h-36 overflow-y-auto">
                     {result.errors.map((err, i) => (
                       <div key={i} className="font-mono">
@@ -249,8 +290,9 @@ export default function Ingestion() {
                   </div>
                 </div>
               ) : (
-                <div className="text-slate-400 text-[11px]">
-                  ✓ 0 validation errors encountered.
+                <div className="p-2.5 rounded bg-slate-950 border border-slate-800/80 text-slate-300 text-[11px] flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Errors: 0 validation or parsing errors</span>
                 </div>
               )}
             </div>
