@@ -355,6 +355,54 @@ export default function Charges() {
               </button>
             </div>
 
+            {/* Phase 3 Modal Tabs Navigation */}
+            <div className="flex border-b border-slate-800 bg-slate-950 px-5 pt-2.5 gap-2 overflow-x-auto">
+              <button
+                onClick={() => setModalTab('investigation')}
+                className={`pb-2.5 px-3.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
+                  modalTab === 'investigation'
+                    ? 'border-blue-500 text-blue-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Layers className="h-4 w-4" />
+                <span>Investigation Graph & Timeline</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+                  Phase 3
+                </span>
+              </button>
+
+              <button
+                onClick={() => setModalTab('ai')}
+                className={`pb-2.5 px-3.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
+                  modalTab === 'ai'
+                    ? 'border-purple-500 text-purple-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>AI Recovery Agent</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-mono">
+                  Phase 2
+                </span>
+              </button>
+
+              <button
+                onClick={() => setModalTab('evidence')}
+                className={`pb-2.5 px-3.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all whitespace-nowrap ${
+                  modalTab === 'evidence'
+                    ? 'border-emerald-500 text-emerald-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Evidence & Traceability</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">
+                  {(chargeEvidence?.relevant_evidence || selectedCharge.relevant_evidence || []).length}
+                </span>
+              </button>
+            </div>
+
             {/* Modal Body */}
             <div className="p-5 space-y-5">
               {/* Charge Information Summary */}
@@ -385,8 +433,20 @@ export default function Charges() {
                 </div>
               </div>
 
-              {/* Requirement 11: AI Investigation Section */}
-              <div className="p-4 rounded-xl bg-slate-900/90 border border-blue-500/30 space-y-3">
+              {/* TAB 1: PHASE 3 INVESTIGATION GRAPH & TIMELINE */}
+              {modalTab === 'investigation' && (
+                <InvestigationGraph
+                  chargeId={selectedCharge.charge_id}
+                  onInvestigateAI={() => {
+                    setModalTab('ai');
+                    handleAIInvestigate(selectedCharge.charge_id);
+                  }}
+                />
+              )}
+
+              {/* TAB 2: PHASE 2 AI AGENT INVESTIGATION */}
+              {modalTab === 'ai' && (
+                <div className="p-4 rounded-xl bg-slate-900/90 border border-purple-500/30 space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-blue-400" />
