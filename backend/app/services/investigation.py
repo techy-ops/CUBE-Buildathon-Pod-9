@@ -331,8 +331,15 @@ class InvestigationGraphService:
                 status_badge=verdict
             ))
 
+        def _normalize_dt(dt: Optional[datetime]) -> datetime:
+            if not dt:
+                return datetime.min
+            if getattr(dt, "tzinfo", None) is not None:
+                return dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+
         # Sort timeline chronologically (None timestamps at the beginning or end)
-        timeline.sort(key=lambda x: x.timestamp or datetime.min)
+        timeline.sort(key=lambda x: _normalize_dt(x.timestamp))
 
         return InvestigationResponse(
             charge_id=charge.charge_id,

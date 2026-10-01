@@ -64,10 +64,14 @@ def test_investigation_graph_supported_scenario(db_session):
     assert "decision" in node_types
 
     # Verify timeline is chronological
+    def _to_naive(dt):
+        if not dt: return datetime.min
+        return dt.replace(tzinfo=None) if dt.tzinfo else dt
+
     assert len(graph.timeline) >= 3
     for i in range(len(graph.timeline) - 1):
-        t1 = graph.timeline[i].timestamp or datetime.min
-        t2 = graph.timeline[i+1].timestamp or datetime.min
+        t1 = _to_naive(graph.timeline[i].timestamp)
+        t2 = _to_naive(graph.timeline[i+1].timestamp)
         assert t1 <= t2
 
 def test_investigation_graph_contradicted_scenario(db_session):
