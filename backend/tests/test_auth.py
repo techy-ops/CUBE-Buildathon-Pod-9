@@ -102,3 +102,17 @@ def test_login_invalid_credentials_fails(client):
 def test_auth_me_unauthorized_without_token(client):
     res = client.get("/api/auth/me")
     assert res.status_code == 401
+
+def test_registration_with_name_field(client):
+    payload = {
+        "name": "Sarah Conner",
+        "email": "sarah@example.com",
+        "password": "Password123!",
+        "confirm_password": "Password123!"
+    }
+    res = client.post("/api/auth/register", json=payload)
+    assert res.status_code == 201
+    data = res.json()
+    assert data["user"]["full_name"] == "Sarah Conner"
+    assert data["user"]["name"] == "Sarah Conner"
+

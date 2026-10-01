@@ -1,12 +1,24 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator, ConfigDict
+from typing import Optional, Any
 from datetime import datetime
 
 class UserRegisterRequest(BaseModel):
-    full_name: str = Field(..., min_length=2, description="User full name")
+    full_name: Optional[str] = Field(None, description="User full name")
+    name: Optional[str] = Field(None, description="User full name alias")
     email: str = Field(..., description="User email address")
     password: str = Field(..., min_length=6, description="Password (min 6 characters)")
     confirm_password: str = Field(..., description="Password confirmation")
+
+    @model_validator(mode="before")
+    @classmethod
+    def populate_name(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            name_val = (data.get("name") or data.get("full_name") or "").strip()
+            if not name_val or len(name_val) < 2:
+                raise ValueError("Name is required and must be at least 2 characters")
+            data["full_name"] = name_val
+            data["name"] = name_val
+        return data
 
     @field_validator("email")
     @classmethod
@@ -39,7 +51,14 @@ class UserResponse(BaseModel):
     id: int
     email: str
     full_name: str
+    name: Optional[str] = None
     created_at: datetime
+
+    @model_validator(mode="after")
+    def set_name_alias(self):
+        if not self.name and self.full_name:
+            self.name = self.full_name
+        return self
 
 class AuthResponse(BaseModel):
     token: str
