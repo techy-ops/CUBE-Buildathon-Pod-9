@@ -164,10 +164,10 @@ class EvidenceHealthService:
                     charge_has_gap = True
                     charge_needs_attention = True
 
-                # Check D: Missing Expected Evidence Types
+                # Check D: Missing Expected Evidence Types (Flag as gap when audit is inconclusive/silent)
                 found_types = {e.evidence_type.lower() for e in relevant_evidence}
                 missing_types = [t for t in expected_types if t.lower() not in found_types]
-                if missing_types:
+                if missing_types and verdict == "SILENT":
                     gap_type = "MISSING_EXPECTED_TYPE"
                     gap_breakdown[gap_type] = gap_breakdown.get(gap_type, 0) + 1
                     evidence_gaps.append(EvidenceGapItem(
@@ -176,16 +176,15 @@ class EvidenceHealthService:
                         amount=charge.amount,
                         currency=charge.currency,
                         gap_type=gap_type,
-                        severity="MEDIUM" if verdict == "SILENT" else "LOW",
-                        description=f"Incomplete evidence coverage: missing {', '.join(missing_types)} logs.",
+                        severity="MEDIUM",
+                        description=f"Incomplete evidence coverage: missing {', '.join(missing_types)} logs preventing conclusive audit.",
                         expected_types=missing_types,
                         shipment_id=resolution.shipment_id,
                         order_id=resolution.order_id,
                         sku=resolution.sku
                     ))
                     charge_has_gap = True
-                    if verdict == "SILENT":
-                        charge_needs_attention = True
+                    charge_needs_attention = True
 
             if charge_has_gap:
                 charges_with_gaps_set.add(charge.charge_id)
