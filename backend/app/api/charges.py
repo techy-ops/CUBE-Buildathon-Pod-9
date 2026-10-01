@@ -7,9 +7,11 @@ from app.models.entities import Charge, Assessment
 from app.schemas.entities import (
     ChargeResponse, ChargeDetailResponse, AssessChargeResponse, EvidenceResponse
 )
+from app.schemas.investigation import InvestigationResponse
 from app.services.resolution import EntityResolutionService
 from app.services.evidence import EvidenceRetrievalService
 from app.services.assessment import AssessmentService
+from app.services.investigation import InvestigationGraphService
 
 router = APIRouter(prefix="/charges", tags=["Charges"])
 
@@ -75,6 +77,15 @@ def get_charge_details(charge_id: str, db: Session = Depends(get_db)):
         relevant_evidence=evidence_responses
     )
     return charge_resp
+
+@router.get("/{charge_id}/investigation", response_model=InvestigationResponse)
+def get_charge_investigation(charge_id: str, db: Session = Depends(get_db)):
+    try:
+        return InvestigationGraphService.get_investigation_graph(charge_id, db)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating investigation graph: {str(e)}")
 
 @router.post("/{charge_id}/assess", response_model=AssessChargeResponse)
 def assess_single_charge(charge_id: str, db: Session = Depends(get_db)):
