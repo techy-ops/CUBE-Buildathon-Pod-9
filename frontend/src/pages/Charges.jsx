@@ -24,8 +24,11 @@ import {
   Sparkles,
   Bot,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  ShieldCheck
 } from 'lucide-react';
+import InvestigationGraph from '../components/InvestigationGraph';
 
 export default function Charges() {
   const [charges, setCharges] = useState([]);
@@ -47,6 +50,9 @@ export default function Charges() {
   const [aiAssessment, setAiAssessment] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
+
+  // Phase 3 Modal Tab state ('investigation', 'ai', 'evidence')
+  const [modalTab, setModalTab] = useState('investigation');
 
   const loadCharges = async () => {
     try {
@@ -73,6 +79,7 @@ export default function Charges() {
     setDetailLoading(true);
     setAiAssessment(null);
     setAiError(null);
+    setModalTab('investigation');
     try {
       const [detail, ev] = await Promise.all([
         fetchChargeDetail(chargeId),
