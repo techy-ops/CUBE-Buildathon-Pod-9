@@ -598,10 +598,20 @@ export default function Charges() {
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* Traceability Flow */}
-              <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800">
+                {!aiAssessment && !aiLoading && !aiError && (
+                  <div className="p-4 text-center text-slate-400 text-xs bg-slate-950 rounded-lg border border-slate-800">
+                    No AI investigation run yet for this charge. Click "Investigate with AI" above to run live reasoning.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 3: TRACEABILITY & DETERMINISTIC EVIDENCE LOGS */}
+            {modalTab === 'evidence' && (
+              <div className="space-y-4">
+                {/* Traceability Flow */}
+                <div className="p-3.5 rounded-lg bg-slate-900 border border-slate-800">
                 <div className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5 flex items-center gap-1.5">
                   <Layers className="h-3.5 w-3.5 text-blue-400" />
                   <span>Traceability Chain</span>
@@ -744,6 +754,8 @@ export default function Charges() {
                 )}
               </div>
             </div>
+          )}
+        </div>
 
             {/* Modal Footer */}
             <div className="p-4 border-t border-slate-800 bg-slate-900/60 flex items-center justify-end">
