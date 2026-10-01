@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchSummary, fetchCharges, assessAllCharges, seedDemoData } from '../services/api';
 import VerdictBadge from '../components/VerdictBadge';
+import EvidenceHealthSection from '../components/EvidenceHealthSection';
 import { DollarSign, ShieldAlert, CheckCircle2, HelpCircle, ArrowUpRight, PlayCircle, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function Dashboard() {
@@ -182,6 +183,9 @@ export default function Dashboard() {
           <div className="text-[11px] text-slate-400 mt-1">Incomplete / missing</div>
         </div>
       </div>
+
+      {/* Phase 3 Differentiation: Evidence Health & Gap Detection */}
+      <EvidenceHealthSection />
 
       {/* Recent Disputed Charges Preview */}
       <div className="saas-card">

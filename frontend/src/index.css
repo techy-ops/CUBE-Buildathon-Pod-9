@@ -289,7 +289,7 @@ body {
   border: 1px solid var(--border-card);
   border-radius: 12px;
   width: 100%;
-  max-width: 840px;
+  max-width: 980px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.65);
