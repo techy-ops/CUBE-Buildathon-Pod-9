@@ -209,3 +209,24 @@ export async function fetchAIStatus() {
   return res.json();
 }
 
+// --- Phase 3 Differentiation APIs ---
+export async function fetchInvestigationGraph(chargeId) {
+  const res = await fetch(`${API_BASE}/charges/${encodeURIComponent(chargeId)}/investigation`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'Failed to fetch investigation graph');
+  }
+  return res.json();
+}
+
+export async function fetchEvidenceHealth() {
+  const res = await fetch(`${API_BASE}/dashboard/evidence-health`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) throw new Error(`Failed to fetch evidence health: ${res.statusText}`);
+  return res.json();
+}
+
+
