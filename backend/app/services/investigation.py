@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.models.entities import Charge, Evidence, Shipment, Order, Assessment, AIAssessment
@@ -71,7 +71,7 @@ class InvestigationGraphService:
             assessment_reason = det_eval["reason"]
             evidence_strength = det_eval["evidence_strength"]
             assessment_id = "ASM-PENDING"
-            asm_time = datetime.utcnow()
+            asm_time = datetime.now(timezone.utc)
 
         # 5. Evidence Classification (Supporting, Contradicting, Inconclusive, Missing)
         supporting: List[Dict[str, Any]] = []
