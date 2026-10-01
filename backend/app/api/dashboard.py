@@ -6,6 +6,8 @@ from typing import Dict
 from app.database import get_db
 from app.models.entities import Charge, Assessment, Evidence
 from app.schemas.entities import DashboardSummary
+from app.schemas.health import EvidenceHealthMetrics
+from app.services.health import EvidenceHealthService
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -62,3 +64,8 @@ def get_dashboard_summary(db: Session = Depends(get_db)):
         verdict_breakdown=verdict_breakdown,
         evidence_type_counts=evidence_type_counts
     )
+
+@router.get("/evidence-health", response_model=EvidenceHealthMetrics)
+def get_evidence_health(db: Session = Depends(get_db)):
+    return EvidenceHealthService.get_evidence_health(db)
+

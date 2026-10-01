@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import List
+from typing import List, Optional
 import os
 from pathlib import Path
 
@@ -16,6 +16,13 @@ class Settings(BaseSettings):
     ]
     HOST: str = "127.0.0.1"
     PORT: int = 8000
+    AUTH_SECRET: str = "recoveryos_phase1_super_secret_auth_key_2026"
+
+    # Phase 2 LLM Configuration
+    LLM_API_KEY: Optional[str] = None
+    LLM_MODEL: str = "gemini-1.5-flash"
+    LLM_BASE_URL: Optional[str] = None
+    EMBEDDING_MODEL: str = "text-embedding-004"
 
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
