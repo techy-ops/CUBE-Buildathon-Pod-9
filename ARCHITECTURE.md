@@ -165,6 +165,42 @@ All features documented below are **fully implemented and verified in the source
 
 ## 4. System Architecture
 
+### Upstream Shared Evidence Store & Closed-Loop Recovery Architecture
+
+```text
+  Receiving ──────▶ Prep ─────────▶ Pack ─────────▶ Returns
+(dock check-in) (polybag/barcode) (camera/weight)  (RMA audit)
+      │                │               │                │
+      ▼                ▼               ▼                ▼
+   ┌────────────────────────────────────────────────────────┐
+   │             Shared Evidence Repository Store           │
+   │           (Normalized SQLite / PostgreSQL ORM)         │
+   └───────────────────────────┬────────────────────────────┘
+                               │
+                               ▼
+                          RecoveryOS
+                               │
+            ┌──────────────────┴──────────────────┐
+            ▼                                     ▼
+     Evidence Health                       AI Investigation
+      & Gap Detection                       (Gemini 2.5)
+            │                                     │
+            ▼                                     ▼
+       EvidenceGap                         Deterministic
+    (Responsible Stage)                     Validation
+            │                                     │
+            ▼                                     ▼
+      Upstream Stage                       ┌──────────────┐
+     (Receiving/Prep/                      │    Claim /   │
+      Pack/Returns)                        │  No Claim /  │
+            │                              │ Human Review │
+            ▼                              └──────────────┘
+     New Verification
+            │
+            ▼
+     Re-investigation (Closed-Loop Feedback Resolution)
+```
+
 ```text
 ┌───────────────────────────────────────────────────────────────────────────────┐
 │                           CLIENT / BROWSER TIER                               │
@@ -189,23 +225,30 @@ All features documented below are **fully implemented and verified in the source
 │  /auth/logout    │         │    investigation │         │  /demo/seed         │
 └──────────────────┘         └──────────────────┘         └─────────────────────┘
          │                             │                             │
-         └─────────────────────────────┼─────────────────────────────┘
+         ├─────────────────────────────┼─────────────────────────────┤
+         ▼                             ▼                             ▼
+┌──────────────────┐         ┌──────────────────┐         ┌─────────────────────┐
+│ Official Router  │         │ Ingest Router    │         │ Feedback Router     │
+│ /official/status │         │ /ingest (JSON)   │         │ /feedback/simulate  │
+│ /official/ingest │         │ /ingest/file     │         │ (Closed-loop feed)  │
+│ /official/eval   │         │ (CSV / JSON)     │         │                     │
+└──────────────────┘         └──────────────────┘         └─────────────────────┘
                                        │
                                        ▼
 ┌───────────────────────────────────────────────────────────────────────────────┐
 │                           CORE SERVICES LAYER                                 │
 │                                                                               │
 │  ┌───────────────────────┐  ┌───────────────────────┐  ┌───────────────────┐  │
-│  │ Entity Resolution     │  │ Semantic Vector Index │  │ Charge            │  │
-│  │ (Deterministic links) │  │ (Cosine TF-IDF RAG)   │  │ Understanding     │  │
+│  │ Official Data Adapter │  │ Semantic Vector Index │  │ Charge            │  │
+│  │ (Direct Cube CSVs)    │  │ (Cosine TF-IDF RAG)   │  │ Understanding     │  │
 │  └───────────────────────┘  └───────────────────────┘  └───────────────────┘  │
 │  ┌───────────────────────┐  ┌───────────────────────┐  ┌───────────────────┐  │
-│  │ Evidence Retrieval    │  │ Deterministic         │  │ Investigation     │  │
-│  │ (Domain filtering)    │  │ Assessment Engine     │  │ Graph Builder     │  │
+│  │ Entity Resolution     │  │ Deterministic         │  │ Investigation     │  │
+│  │ (Unit-level isolation)│  │ Assessment Engine     │  │ Graph Builder     │  │
 │  └───────────────────────┘  └───────────────────────┘  └───────────────────┘  │
 │  ┌───────────────────────┐  ┌───────────────────────┐  ┌───────────────────┐  │
-│  │ Evidence Health       │  │ Claim Calculation     │  │ Authentication    │  │
-│  │ & Gap Detection       │  │ (Defensible amounts)  │  │ (PBKDF2 SHA-256)  │  │
+│  │ Evidence Health       │  │ Closed-Loop Feedback  │  │ Official Eval     │  │
+│  │ & Gap Detection       │  │ (Upstream Routing)    │  │ Pipeline Runner   │  │
 │  └───────────────────────┘  └───────────────────────┘  └───────────────────┘  │
 └──────────────────────────────────────┬────────────────────────────────────────┘
                                        │
@@ -215,10 +258,10 @@ All features documented below are **fully implemented and verified in the source
 │         DATA PERSISTENCE TIER          │         │     AI RECOVERY AGENT LAYER     │
 │  SQLAlchemy 2.0 ORM + SQLite / Postgres│         │  RecoveryAgent Orchestrator     │
 │  Tables:                               │         │  LLMService (Gemini 2.5 Flash)  │
-│  - charges        - evidence           │         │  Structured JSON Output Schema  │
-│  - orders         - assessments        │         │  Anti-Hallucination Grounding   │
-│  - shipments      - ai_assessments     │         │  Deterministic Safety Fallback  │
-│  - users          - user_sessions      │         │  OpenAI-Compatible Endpoint     │
+│  - charges (unit_id, source_dataset)   │         │  Structured JSON Output Schema  │
+│  - evidence (unit_id, source_dataset)  │         │  Anti-Hallucination Grounding   │
+│  - orders, shipments, assessments      │         │  Deterministic Safety Fallback  │
+│  - users, user_sessions                │         │  Circuit Breaker Protection     │
 └────────────────────────────────────────┘         └─────────────────────────────────┘
 ```
 
