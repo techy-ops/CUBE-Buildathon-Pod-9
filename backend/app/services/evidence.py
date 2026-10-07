@@ -19,17 +19,21 @@ class EvidenceRetrievalService:
         if any(kw in r for kw in ["packag", "prep", "box", "bubble", "bag", "label", "barcode", "upc", "asin"]):
             types.extend(["prep", "packing"])
         
-        # Shortage / Quantity / Count / Missing item
-        if any(kw in r for kw in ["shortage", "missing", "quantity", "count", "unit", "unreceived", "overage"]):
-            types.extend(["packing", "receiving"])
+        # Shortage / Quantity / Count / Missing item / Lost Inbound
+        if any(kw in r for kw in ["shortage", "missing", "quantity", "count", "unit", "unreceived", "overage", "lost_inbound", "lost"]):
+            types.extend(["receiving", "prep", "packing"])
 
-        # Damage
-        if any(kw in r for kw in ["damage", "defect", "broken", "crush", "leak"]):
-            types.extend(["prep", "packing", "receiving"])
+        # Damage / Defect / Inbound Defect Fee / Damaged In Warehouse
+        if any(kw in r for kw in ["damage", "defect", "broken", "crush", "leak", "inbound_defect_fee", "inbound_defect", "damaged_in_warehouse"]):
+            types.extend(["prep", "receiving", "packing"])
 
-        # Returns
-        if any(kw in r for kw in ["return", "rma"]):
+        # Returns / Refund / Not Returned
+        if any(kw in r for kw in ["return", "rma", "refund_issued_item_not_returned", "not_returned", "refund"]):
             types.extend(["returns"])
+
+        # Fulfillment Fee Weight Tier
+        if any(kw in r for kw in ["fulfilment_fee_weight_tier", "fulfilment", "weight_tier"]):
+            types.extend(["packing", "prep", "receiving"])
 
         # If none matched specifically, consider all operational evidence types
         if not types:
@@ -55,19 +59,23 @@ class EvidenceRetrievalService:
         Returns:
             (relevant_evidence, all_linked_evidence)
             - relevant_evidence: evidence matching the charge reason's domain and SKU
-            - all_linked_evidence: all operational evidence matching the shipment/order
+            - all_linked_evidence: all operational evidence matching the shipment/order/unit
         
         Never invents or fabricates evidence.
+        Never attaches evidence belonging to a different unit or SKU.
         """
+        unit_id = getattr(charge, "unit_id", None) or getattr(resolution, "unit_id", None)
         shipment_id = resolution.shipment_id
         order_id = resolution.order_id
         sku = resolution.sku
 
-        if not shipment_id and not order_id:
+        if not shipment_id and not order_id and not unit_id:
             return [], []
 
         # Build query for linked records
         clauses = []
+        if unit_id:
+            clauses.append(Evidence.unit_id == unit_id)
         if shipment_id:
             clauses.append(Evidence.shipment_id == shipment_id)
         if order_id:
@@ -82,6 +90,9 @@ class EvidenceRetrievalService:
         for rec in records:
             if rec.evidence_id not in seen_ids:
                 seen_ids.add(rec.evidence_id)
+                # If charge has a specific unit_id, do not link evidence belonging to a different unit_id
+                if unit_id and rec.unit_id and rec.unit_id != unit_id:
+                    continue
                 deduped_records.append(rec)
 
         relevant_types = EvidenceRetrievalService.get_relevant_evidence_types(charge.reason)
@@ -90,6 +101,10 @@ class EvidenceRetrievalService:
         for rec in deduped_records:
             # Type relevance check
             if rec.evidence_type.lower() not in relevant_types:
+                continue
+
+            # Unit check: if charge has unit_id and evidence has unit_id, they must match
+            if unit_id and rec.unit_id and rec.unit_id != unit_id:
                 continue
 
             # SKU check: if evidence specifies a SKU, and charge has a SKU, they must match
