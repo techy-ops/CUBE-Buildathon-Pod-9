@@ -602,7 +602,11 @@ The Evidence Health Engine (`GET /api/dashboard/evidence-health`) conducts a rea
 | `POST` | `/api/charges/assess-all` | Batch-assesses all charges in the database | Optional |
 | `GET` | `/api/charges/{charge_id}/evidence` | Retrieves relevant and linked evidence for a charge | Optional |
 | `GET` | `/api/evidence` | Global evidence browser with filters (`evidence_type`, `search`)| Optional |
-| `POST` | `/api/ingest` | Ingests JSON payload or CSV multipart file | Optional |
+| `POST` | `/api/ingest` | Ingests JSON payload or CSV multipart file (auto-detects official Cube CSVs) | Optional |
+| `GET` | `/api/official/status` | Checks presence of official Cube CSV files and row counts | Optional |
+| `POST` | `/api/official/ingest` | Ingests official Cube Build-A-Thon CSV dataset (idempotent) | Optional |
+| `GET` | `/api/official/evaluation` | Executes functional evaluation on official Cube dataset | Optional |
+| `POST` | `/api/feedback/simulate` | Closed-Loop upstream evidence submission & re-investigation | Optional |
 | `GET` | `/api/ai/status` | Returns LLM availability, model name, and vector index status | Optional |
 | `POST` | `/api/ai/charges/{charge_id}/investigate` | Triggers full AI recovery agent investigation | Optional |
 | `GET` | `/api/ai/charges/{charge_id}` | Retrieves existing AI assessment or runs investigation | Optional |
@@ -678,16 +682,17 @@ All tests and builds were directly executed and verified:
 ### 1. Backend Pytest Suite
 ```
 pytest -v
-====================== 60 passed, 176 warnings in 50.32s ======================
+====================== 70 passed, 306 warnings in 13.48s ======================
 ```
-- **Total Tests**: **60 passed, 0 failed, 0 errors**.
+- **Total Tests**: **70 passed, 0 failed, 0 errors**.
 - **Coverage by Test Module**:
+  - `test_official_hardening.py` (10 tests): Official CSV parsing, idempotency, unit-level evidence isolation, official fee assessments, routine fulfillment fee handling, investigation graph with official data, evidence health/gaps on official data, closed-loop feedback loop, anti-hallucination validation, official evaluation runner.
   - `test_ai_agent.py` (8 tests): AI investigation workflow, fallback handling, hallucination rejection, agreement checks.
   - `test_api.py` (9 tests): REST endpoints for charges, evidence, assessments, dashboard, ingestion.
   - `test_assessment.py` (5 tests): Deterministic rules, timestamp sequencing, favorable vs defect matching, conflicting evidence.
   - `test_auth.py` (6 tests): Registration, login, validation errors, duplicate email checks, session invalidation, `/auth/me`.
   - `test_claims.py` (4 tests): Exact claim matching for contradicted charges, zero claims for supported/silent.
-  - `test_evaluation.py` (2 tests): 30-case evaluation suite execution (Accuracy >= 90%, 0% unsupported claims, 100% evidence traceability).
+  - `test_evaluation.py` (2 tests): 30-case internal regression evaluation suite execution.
   - `test_evidence.py` (2 tests): Evidence retrieval relevance, SKU filtering, no evidence fabrication.
   - `test_final_acceptance.py` (6 tests): End-to-end acceptance scenarios A through F (Supported, Contradicted, Silent, Hallucination Safety, AI Fallback, Authenticated Flow).
   - `test_ingestion.py` (3 tests): JSON payloads, CSV parsing, malformed record handling.
@@ -701,8 +706,8 @@ npm run build (in frontend/)
 ✓ 1593 modules transformed.
 dist/index.html                   1.13 kB │ gzip:  0.65 kB
 dist/assets/index-DL99Sx9I.css   13.82 kB │ gzip:  3.71 kB
-dist/assets/index-M9GtnQxq.js   281.65 kB │ gzip: 78.12 kB
-✓ built in 11.20s
+dist/assets/index-DyKJSy5N.js   292.85 kB │ gzip: 80.26 kB
+✓ built in 3.13s
 ```
 - Build completed with **zero errors**.
 
