@@ -97,6 +97,8 @@ class EvidenceHealthService:
                     severity="HIGH",
                     description="Charge cannot be linked to any shipment or order record.",
                     expected_types=expected_types,
+                    responsible_stage="Inbound Fulfillment / Integration",
+                    missing_evidence="Missing shipment or order ID link in operational feed",
                     shipment_id=resolution.shipment_id,
                     order_id=resolution.order_id,
                     sku=resolution.sku
@@ -115,6 +117,8 @@ class EvidenceHealthService:
                     severity="MEDIUM",
                     description="Missing shipment entity resolution for order.",
                     expected_types=expected_types,
+                    responsible_stage="Fulfillment Logistics",
+                    missing_evidence="Shipment association for order",
                     shipment_id=resolution.shipment_id,
                     order_id=resolution.order_id,
                     sku=resolution.sku
@@ -125,6 +129,7 @@ class EvidenceHealthService:
             if len(relevant_evidence) == 0:
                 gap_type = "NO_EVIDENCE"
                 gap_breakdown[gap_type] = gap_breakdown.get(gap_type, 0) + 1
+                primary_stage = expected_types[0].capitalize() if expected_types else "Dock / Prep"
                 evidence_gaps.append(EvidenceGapItem(
                     charge_id=charge.charge_id,
                     reason=charge.reason,
@@ -134,6 +139,8 @@ class EvidenceHealthService:
                     severity="HIGH",
                     description="No operational evidence found in warehouse/carrier logs.",
                     expected_types=expected_types,
+                    responsible_stage=primary_stage,
+                    missing_evidence=f"Verified {primary_stage} inspection scan and signoff",
                     shipment_id=resolution.shipment_id,
                     order_id=resolution.order_id,
                     sku=resolution.sku
@@ -157,6 +164,8 @@ class EvidenceHealthService:
                         severity="HIGH",
                         description="Operational logs contain conflicting results (both pass and defect logged).",
                         expected_types=expected_types,
+                        responsible_stage="Quality Assurance",
+                        missing_evidence="Discrepancy reconciliation report between conflicting logs",
                         shipment_id=resolution.shipment_id,
                         order_id=resolution.order_id,
                         sku=resolution.sku
@@ -170,6 +179,7 @@ class EvidenceHealthService:
                 if missing_types and verdict == "SILENT":
                     gap_type = "MISSING_EXPECTED_TYPE"
                     gap_breakdown[gap_type] = gap_breakdown.get(gap_type, 0) + 1
+                    primary_missing = missing_types[0].capitalize()
                     evidence_gaps.append(EvidenceGapItem(
                         charge_id=charge.charge_id,
                         reason=charge.reason,
@@ -179,6 +189,8 @@ class EvidenceHealthService:
                         severity="MEDIUM",
                         description=f"Incomplete evidence coverage: missing {', '.join(missing_types)} logs preventing conclusive audit.",
                         expected_types=missing_types,
+                        responsible_stage=primary_missing,
+                        missing_evidence=f"Complete {primary_missing} operational log",
                         shipment_id=resolution.shipment_id,
                         order_id=resolution.order_id,
                         sku=resolution.sku
