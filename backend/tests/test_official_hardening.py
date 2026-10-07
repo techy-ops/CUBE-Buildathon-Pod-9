@@ -92,11 +92,12 @@ def test_unit_level_evidence_isolation_never_attaches_wrong_unit(memory_db):
         if ev.unit_id:
             assert ev.unit_id == "UNIT-0014", f"Evidence {ev.evidence_id} leaked from wrong unit {ev.unit_id}"
 
-def test_official_fee_assessments_contradicted_and_supported(memory_db):
+def test_official_fee_assessments_contradicted_supported_and_conflicting(memory_db):
     """
     Tests actual investigations on official charges:
     - FEE-0014-1 (UNIT-0014): Dock check and prep show perfect compliance -> CONTRADICTED -> $2.00 claim
-    - FEE-0018-1 (UNIT-0018): Dock check logged obvious_defect -> SUPPORTED -> $0.00 claim
+    - FEE-0018-1 (UNIT-0018): Dock logged obvious_defect while prep logged pass -> Conflicting evidence -> SILENT
+    - FEE-0064-1 (UNIT-0064): Prep logged fail and dock logged discrepancy -> SUPPORTED -> $0.00 claim
     """
     OfficialDataAdapter.ingest_all_official_data(memory_db, data_dir="data")
 
@@ -107,16 +108,21 @@ def test_official_fee_assessments_contradicted_and_supported(memory_db):
     assert len(asm_14.evidence_ids) >= 1
     assert "PRP-0014" in asm_14.evidence_ids or "RCV-0014" in asm_14.evidence_ids
 
-    # 2. Supported case
+    # 2. Conflicting evidence case -> Safety fallback to SILENT
     asm_18 = AssessmentService.assess_charge(memory_db, "FEE-0018-1")
-    assert asm_18.verdict == "SUPPORTED"
+    assert asm_18.verdict == "SILENT"
+    assert "Conflicting evidence" in asm_18.reason
     assert asm_18.claim_amount == 0.0
-    assert len(asm_18.evidence_ids) >= 1
-    assert "RCV-0018" in asm_18.evidence_ids
+
+    # 3. Supported case
+    asm_64 = AssessmentService.assess_charge(memory_db, "FEE-0064-1")
+    assert asm_64.verdict == "SUPPORTED"
+    assert asm_64.claim_amount == 0.0
+    assert len(asm_64.evidence_ids) >= 1
 
 def test_routine_fulfillment_fee_silent_safe_zero_claim(memory_db):
     """
-    Fulfillment fees (fulfilment_fee_weight_tier) with no discrepancy evidence
+    Fulfillment fees (fulfilment_fee_weight_tier) with no packing discrepancy evidence
     must safely evaluate to SILENT with 0 claim amount. Never guess or fabricate.
     """
     OfficialDataAdapter.ingest_all_official_data(memory_db, data_dir="data")
@@ -180,19 +186,19 @@ def test_closed_loop_feedback_resolves_evidence_gap(memory_db):
     asm_before = AssessmentService.assess_charge(memory_db, target_charge_id)
     assert asm_before.verdict == "SILENT"
 
-    # Simulate upstream Receiving station submitting verified dimensional compliance check
+    # Simulate upstream Packing station submitting verified dimensional compliance check
     feedback_result = EvidenceFeedbackService.simulate_upstream_evidence_submission(
         db=memory_db,
         charge_id=target_charge_id,
-        upstream_stage="receiving",
+        upstream_stage="packing",
         result="PASS",
-        description="Receiving dock 3D dimensioning scan confirmed tier-1 standard package size."
+        description="Packing station 3D dimensioning scan confirmed tier-1 standard package size."
     )
 
     assert feedback_result["success"] is True
     assert feedback_result["charge_id"] == target_charge_id
-    assert feedback_result["upstream_stage"] == "receiving"
-    assert feedback_result["new_evidence_id"].startswith("FB-RCV-")
+    assert feedback_result["upstream_stage"] == "packing"
+    assert feedback_result["new_evidence_id"].startswith("FB-PCK-")
     assert feedback_result["updated_verdict"] == "CONTRADICTED"
     assert feedback_result["updated_claim_amount"] == 4.25
 

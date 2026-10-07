@@ -31,9 +31,9 @@ class EvidenceRetrievalService:
         if any(kw in r for kw in ["return", "rma", "refund_issued_item_not_returned", "not_returned", "refund"]):
             types.extend(["returns"])
 
-        # Fulfillment Fee Weight Tier
-        if any(kw in r for kw in ["fulfilment_fee_weight_tier", "fulfilment", "weight_tier"]):
-            types.extend(["packing", "prep", "receiving"])
+        # Fulfillment Fee Weight Tier (only packing station dimensional/weight verification applies)
+        if any(kw in r for kw in ["fulfilment_fee_weight_tier", "weight_tier"]):
+            types.extend(["packing"])
 
         # If none matched specifically, consider all operational evidence types
         if not types:
