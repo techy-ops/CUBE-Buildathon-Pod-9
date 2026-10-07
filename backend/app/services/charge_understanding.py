@@ -18,21 +18,27 @@ CATEGORY_RULES = [
     },
     {
         "category": "shortage",
-        "keywords": ["shortage", "missing", "quantity", "count", "unit", "unreceived", "overage", "incomplete"],
-        "evidence_types": ["packing", "receiving"],
+        "keywords": ["shortage", "missing", "quantity", "count", "unit", "unreceived", "overage", "incomplete", "lost_inbound", "lost"],
+        "evidence_types": ["receiving", "prep", "packing"],
         "requirements": ["Verify packing scale weight / camera count", "Check receiving dock check-in verification"]
     },
     {
         "category": "damage",
-        "keywords": ["damage", "defect", "broken", "crush", "leak", "dented", "liquid", "torn"],
-        "evidence_types": ["prep", "packing", "receiving", "returns"],
-        "requirements": ["Verify intact condition prior to carrier handoff", "Check dock scanner physical damage logs"]
+        "keywords": ["damage", "defect", "broken", "crush", "leak", "dented", "liquid", "torn", "inbound_defect_fee", "inbound_defect", "damaged_in_warehouse"],
+        "evidence_types": ["prep", "receiving", "packing", "returns"],
+        "requirements": ["Verify intact condition prior to carrier handoff", "Check dock scanner physical damage logs", "Verify prep quality standards"]
     },
     {
         "category": "returns",
-        "keywords": ["return", "rma", "customer return", "reversal"],
+        "keywords": ["return", "rma", "customer return", "reversal", "refund_issued_item_not_returned", "not_returned", "refund"],
         "evidence_types": ["returns", "receiving"],
         "requirements": ["Check customer RMA inspection logs", "Cross-reference returned condition against outbound log"]
+    },
+    {
+        "category": "fulfillment",
+        "keywords": ["fulfilment_fee_weight_tier", "fulfilment", "fulfillment", "weight_tier"],
+        "evidence_types": ["packing", "prep", "receiving"],
+        "requirements": ["Verify outbound pack dimensions and weight tier verification", "Audit catalog SKU specifications"]
     }
 ]
 
