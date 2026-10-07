@@ -34,6 +34,7 @@ Rules:
 class LLMService:
     # Testing hook to allow injecting mock responses in automated tests
     _mock_provider: Optional[Callable[[Dict[str, Any], List[Dict[str, Any]]], Optional[str]]] = None
+    _circuit_broken: bool = False
 
     @classmethod
     def set_mock_provider(cls, mock_func: Optional[Callable[[Dict[str, Any], List[Dict[str, Any]]], Optional[str]]]):
@@ -43,7 +44,13 @@ class LLMService:
     def is_available(cls) -> bool:
         if cls._mock_provider is not None:
             return True
+        if cls._circuit_broken:
+            return False
         return bool(settings.LLM_API_KEY and settings.LLM_API_KEY.strip())
+
+    @classmethod
+    def reset_circuit(cls):
+        cls._circuit_broken = False
 
     @classmethod
     def reason_over_evidence(
@@ -68,9 +75,8 @@ class LLMService:
                 logger.warning(f"Mock LLM failed/malformed: {e}")
                 return None
 
-        # Check API key configuration
+        # Check API key configuration or broken circuit
         if not cls.is_available():
-            logger.info("LLM_API_KEY not configured. Falling back to deterministic reasoning.")
             return None
 
         # Format user prompt with verified database facts
@@ -99,10 +105,11 @@ class LLMService:
                 "temperature": 0.0
             }
 
-            with httpx.Client(timeout=15.0) as client:
+            with httpx.Client(timeout=3.0) as client:
                 res = client.post(endpoint, headers=headers, json=payload)
                 if res.status_code != 200:
-                    logger.warning(f"LLM API returned status {res.status_code}: {res.text}")
+                    cls._circuit_broken = True
+                    logger.warning(f"LLM API returned status {res.status_code}: {res.text}. Circuit tripped.")
                     return None
 
                 result_json = res.json()
@@ -111,5 +118,6 @@ class LLMService:
                 return AIReasoningOutput.model_validate(parsed)
 
         except Exception as e:
-            logger.warning(f"LLM call failed with error: {e}. Gracefully falling back to deterministic safety engine.")
+            cls._circuit_broken = True
+            logger.warning(f"LLM call failed with error: {e}. Circuit tripped, falling back to deterministic safety engine.")
             return None
