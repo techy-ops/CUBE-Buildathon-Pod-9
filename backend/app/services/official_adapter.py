@@ -716,6 +716,11 @@ class OfficialDataAdapter:
         """
         result = OfficialAdapterResult()
 
+        if not os.path.exists(data_dir):
+            alt_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", data_dir))
+            if os.path.exists(alt_path):
+                data_dir = alt_path
+
         if clear_existing_official_only:
             # Delete only previous cube_official records to preserve internal benchmark records
             db.query(Evidence).filter(Evidence.source_dataset == "cube_official").delete()

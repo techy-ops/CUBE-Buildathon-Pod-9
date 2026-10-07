@@ -42,6 +42,11 @@ def run_official_cube_evaluation(data_dir: str = "data", db_engine=None) -> Dict
     else:
         engine = db_engine
 
+    if not os.path.exists(data_dir):
+        alt_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", data_dir))
+        if os.path.exists(alt_path):
+            data_dir = alt_path
+
     Base.metadata.create_all(bind=engine)
     Session = sessionmaker(bind=engine)
     session = Session()

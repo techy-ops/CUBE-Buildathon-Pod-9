@@ -25,3 +25,27 @@ def get_db():
 def init_db():
     import app.models  # Ensure all models are registered
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight schema migration for SQLite
+    if is_sqlite:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            try:
+                # Check charges table columns
+                res = conn.execute(text("PRAGMA table_info(charges)")).fetchall()
+                cols = {r[1] for r in res}
+                if cols and "unit_id" not in cols:
+                    conn.execute(text("ALTER TABLE charges ADD COLUMN unit_id VARCHAR(100)"))
+                if cols and "source_dataset" not in cols:
+                    conn.execute(text("ALTER TABLE charges ADD COLUMN source_dataset VARCHAR(50) DEFAULT 'internal' NOT NULL"))
+
+                # Check evidence table columns
+                res_ev = conn.execute(text("PRAGMA table_info(evidence)")).fetchall()
+                ev_cols = {r[1] for r in res_ev}
+                if ev_cols and "unit_id" not in ev_cols:
+                    conn.execute(text("ALTER TABLE evidence ADD COLUMN unit_id VARCHAR(100)"))
+                if ev_cols and "source_dataset" not in ev_cols:
+                    conn.execute(text("ALTER TABLE evidence ADD COLUMN source_dataset VARCHAR(50) DEFAULT 'internal' NOT NULL"))
+                conn.commit()
+            except Exception:
+                pass
