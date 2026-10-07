@@ -10,6 +10,8 @@ class EvidenceGapItem(BaseModel):
     severity: str  # "HIGH", "MEDIUM", "LOW"
     description: str
     expected_types: List[str] = Field(default_factory=list)
+    responsible_stage: Optional[str] = None  # Receiving, Prep, Packing, Returns
+    missing_evidence: Optional[str] = None
     shipment_id: Optional[str] = None
     order_id: Optional[str] = None
     sku: Optional[str] = None

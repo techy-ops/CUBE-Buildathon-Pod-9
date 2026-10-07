@@ -8,6 +8,8 @@ class ChargeBase(BaseModel):
     shipment_id: Optional[str] = None
     order_id: Optional[str] = None
     sku: Optional[str] = None
+    unit_id: Optional[str] = None
+    source_dataset: Optional[str] = "internal"
     reason: str = Field(..., description="Reason for the charge (e.g. Packaging Defect, Shortage)")
     amount: float = Field(..., description="Charge monetary amount")
     currency: str = Field("USD", description="Currency ISO code")
@@ -80,6 +82,8 @@ class EvidenceBase(BaseModel):
     shipment_id: Optional[str] = None
     order_id: Optional[str] = None
     sku: Optional[str] = None
+    unit_id: Optional[str] = None
+    source_dataset: Optional[str] = "internal"
     result: str = Field(..., description="PASS, FAIL, VERIFIED, DISCREPANCY, DAMAGED, etc.")
     description: str
     timestamp: Optional[Union[datetime, str]] = None
@@ -141,6 +145,7 @@ class EntityResolutionInfo(BaseModel):
     shipment_id: Optional[str] = None
     order_id: Optional[str] = None
     sku: Optional[str] = None
+    unit_id: Optional[str] = None
     resolution_status: str  # RESOLVED, PARTIALLY_RESOLVED, UNRESOLVED
     resolution_path: str
     notes: List[str] = []
