@@ -138,12 +138,12 @@ def main():
     json_path = os.path.join(eval_dir, "results.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
-    print(f"[✓] Machine-readable results saved to: {json_path}")
+    print(f"[OK] Machine-readable results saved to: {json_path}")
 
     # Save Markdown report
     report_path = os.path.join(eval_dir, "REPORT.md")
     generate_markdown_report(results, report_path)
-    print(f"[✓] Human-readable report saved to: {report_path}")
+    print(f"[OK] Human-readable report saved to: {report_path}")
 
     s = results["summary"]
     print("\n--- RESULTS SUMMARY ---")

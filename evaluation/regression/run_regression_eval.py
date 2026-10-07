@@ -79,12 +79,12 @@ def main():
     json_path = os.path.join(eval_dir, "results.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
-    print(f"[✓] Regression JSON results saved to: {json_path}")
+    print(f"[OK] Regression JSON results saved to: {json_path}")
 
     # Save Markdown report
     report_path = os.path.join(eval_dir, "REPORT.md")
     generate_regression_markdown_report(results, report_path)
-    print(f"[✓] Regression Markdown report saved to: {report_path}")
+    print(f"[OK] Regression Markdown report saved to: {report_path}")
 
     print("\n--- REGRESSION SUMMARY ---")
     print(f"Total Cases:                 {results['total_cases']}")

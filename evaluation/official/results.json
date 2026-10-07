@@ -1,0 +1,2319 @@
+{
+  "evaluation_type": "official_cube_dataset",
+  "dataset_name": "Cube Build-A-Thon Official Sample Data",
+  "evaluation_timestamp": "2026-10-07T16:39:07.508070",
+  "summary": {
+    "total_official_charges": 61,
+    "total_official_evidence_records": 215,
+    "total_official_orders": 71,
+    "total_official_shipments": 45,
+    "ingestion_coverage_pct": 100.0,
+    "entity_resolution_success_pct": 100.0,
+    "evidence_traceability_pct": 100.0,
+    "unsupported_claim_rate_pct": 0.0,
+    "ai_deterministic_agreement_pct": 100.0,
+    "total_charge_value_usd": 202.7,
+    "total_defensible_recovery_usd": 102.75
+  },
+  "verdict_distribution": {
+    "CONTRADICTED": {
+      "count": 29,
+      "amount_usd": 102.75,
+      "description": "Fulfillment charges contradicted by verified official prep/dock evidence with recovery claims generated."
+    },
+    "SUPPORTED": {
+      "count": 11,
+      "amount_usd": 25.7,
+      "description": "Fulfillment charges confirmed by official defect logs (e.g. obvious receiving damage). Valid penalties."
+    },
+    "SILENT": {
+      "count": 21,
+      "amount_usd": 74.25,
+      "description": "Charges lacking direct operational dispute evidence (e.g. routine weight tier fees). Conservative zero-claim."
+    }
+  },
+  "entity_resolution_metrics": {
+    "charges_with_unit_id": 61,
+    "charges_with_shipment_id": 61,
+    "charges_with_order_id": 46,
+    "charges_with_sku": 61,
+    "fully_resolved_count": 61,
+    "unresolved_count": 0
+  },
+  "evidence_health_metrics": {
+    "charges_with_sufficient_evidence": 36,
+    "charges_with_evidence_gaps": 25,
+    "evidence_coverage_percentage": 59.0,
+    "gap_breakdown": {
+      "CONFLICTING_EVIDENCE": 21,
+      "MISSING_EXPECTED_TYPE": 25
+    },
+    "evidence_type_distribution": {
+      "receiving": 100,
+      "prep": 62,
+      "packing": 29,
+      "returns": 24
+    }
+  },
+  "case_evaluations": [
+    {
+      "charge_id": "FEE-0002-1",
+      "unit_id": "UNIT-0002",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-100",
+      "order_id": "ORD-DUMMY-50002",
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 4.25,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0002",
+        "PRP-0002"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0002",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_amira (Official Prep)",
+          "timestamp": "2026-06-04 12:25:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_amira"
+        },
+        {
+          "evidence_id": "RCV-0002",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-03 13:25:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0002 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-03 13:25); PRP-0002 (PREP: PASS by PrepStation-op_amira (Official Prep) at 2026-06-04 12:25). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0003-1",
+      "unit_id": "UNIT-0003",
+      "charge_type": "lost_inbound",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-100",
+      "order_id": null,
+      "sku": "SKU-PUZZLE-500",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0003",
+        "PRP-0003"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0003",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-04 15:54:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0003",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-04 02:54:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Charge 'lost_inbound' is SUPPORTED by 2 warehouse evidence record(s) confirming discrepancy: RCV-0003 (RECEIVING: DAMAGED by DockStation-op_dana (Official Receiving) at 2026-06-04 02:54); PRP-0003 (PREP: FAIL by PrepStation-op_fatima (Official Prep) at 2026-06-04 15:54). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0003-2",
+      "unit_id": "UNIT-0003",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-100",
+      "order_id": "ORD-DUMMY-50003",
+      "sku": "SKU-PUZZLE-500",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0003",
+        "PRP-0003"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0003",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-04 15:54:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0003",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-04 02:54:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 2 warehouse evidence record(s) confirming discrepancy: RCV-0003 (RECEIVING: DAMAGED by DockStation-op_dana (Official Receiving) at 2026-06-04 02:54); PRP-0003 (PREP: FAIL by PrepStation-op_fatima (Official Prep) at 2026-06-04 15:54). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0005-1",
+      "unit_id": "UNIT-0005",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-100",
+      "order_id": "ORD-DUMMY-50005",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0005",
+        "PRP-0005"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0005",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-10 04:54:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0005",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-09 07:54:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0005-1'. Favorable logs ['PRP-0005'] conflict with defect logs ['RCV-0005']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0007-1",
+      "unit_id": "UNIT-0007",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-100",
+      "order_id": "ORD-DUMMY-50007",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0007",
+        "PRP-0007"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0007",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-09 22:21:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0007",
+          "evidence_type": "receiving",
+          "result": "FAIL",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-07 23:21:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0007-1'. Favorable logs ['PRP-0007'] conflict with defect logs ['RCV-0007']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0011-1",
+      "unit_id": "UNIT-0011",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50011",
+      "sku": "SKU-PUZZLE-500",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0011",
+        "PRP-0011"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0011",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-05 11:12:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0011",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-04 23:12:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0011 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-04 23:12); PRP-0011 (PREP: PASS by PrepStation-op_ben (Official Prep) at 2026-06-05 11:12). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0012-1",
+      "unit_id": "UNIT-0012",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50012",
+      "sku": "SKU-MUG-11",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 4.25,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0012"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0012",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-04 06:34:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 1 verified evidence record(s): RCV-0012 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-04 06:34). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0013-1",
+      "unit_id": "UNIT-0013",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50013",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0013",
+        "PRP-0013"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0013",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-07 11:53:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0013",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-07 07:53:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0013 (RECEIVING: PASS by DockStation-op_dana (Official Receiving) at 2026-06-07 07:53); PRP-0013 (PREP: PASS by PrepStation-op_fatima (Official Prep) at 2026-06-07 11:53). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0014-1",
+      "unit_id": "UNIT-0014",
+      "charge_type": "inbound_defect_fee",
+      "amount": 2.0,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": null,
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "SILENT",
+      "claim_amount": 2.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0014",
+        "PRP-0014"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0014",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-06 07:36:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0014",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-04 14:36:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'inbound_defect_fee' is CONTRADICTED by 2 verified evidence record(s): RCV-0014 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-04 14:36); PRP-0014 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-06 07:36). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0014-2",
+      "unit_id": "UNIT-0014",
+      "charge_type": "lost_inbound",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": null,
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0014",
+        "PRP-0014"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0014",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-06 07:36:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0014",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-04 14:36:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'lost_inbound' is CONTRADICTED by 2 verified evidence record(s): RCV-0014 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-04 14:36); PRP-0014 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-06 07:36). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0014-3",
+      "unit_id": "UNIT-0014",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.75,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50014",
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 4.75,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0014",
+        "PRP-0014"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0014",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-06 07:36:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0014",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-04 14:36:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0014 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-04 14:36); PRP-0014 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-06 07:36). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0014-4",
+      "unit_id": "UNIT-0014",
+      "charge_type": "refund_issued_item_not_returned",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50014",
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RTN-0014"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RTN-0014",
+          "evidence_type": "returns",
+          "result": "DAMAGED",
+          "source": "ReturnsStation-op_eli (Official Returns)",
+          "timestamp": "2026-07-18 07:36:00",
+          "source_file": "returns_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'refund_issued_item_not_returned' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RTN-0014 (RETURNS: DAMAGED by ReturnsStation-op_eli (Official Returns) at 2026-07-18 07:36). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0015-1",
+      "unit_id": "UNIT-0015",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50015",
+      "sku": "SKU-MUG-11",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0015",
+        "PRP-0015"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0015",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_amira (Official Prep)",
+          "timestamp": "2026-06-12 02:23:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_amira"
+        },
+        {
+          "evidence_id": "RCV-0015",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-10 07:23:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0015-1'. Favorable logs ['RCV-0015'] conflict with defect logs ['PRP-0015']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0018-1",
+      "unit_id": "UNIT-0018",
+      "charge_type": "inbound_defect_fee",
+      "amount": 1.0,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": null,
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0018",
+        "PRP-0018"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0018",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-08 04:44:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0018",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-07 07:44:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0018-1'. Favorable logs ['PRP-0018'] conflict with defect logs ['RCV-0018']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0018-2",
+      "unit_id": "UNIT-0018",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-101",
+      "order_id": "ORD-DUMMY-50018",
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0018",
+        "PRP-0018"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0018",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-08 04:44:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0018",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-07 07:44:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0018-2'. Favorable logs ['PRP-0018'] conflict with defect logs ['RCV-0018']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0024-1",
+      "unit_id": "UNIT-0024",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-102",
+      "order_id": "ORD-DUMMY-50024",
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 5.1,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0024",
+        "PRP-0024"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0024",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-06 05:47:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0024",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-04 09:47:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0024 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-04 09:47); PRP-0024 (PREP: PASS by PrepStation-op_eli (Official Prep) at 2026-06-06 05:47). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0025-1",
+      "unit_id": "UNIT-0025",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-102",
+      "order_id": "ORD-DUMMY-50025",
+      "sku": "SKU-TOWEL-BLU",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0025",
+        "PRP-0025"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0025",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-10 13:17:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0025",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-10 00:17:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0025-1'. Favorable logs ['PRP-0025'] conflict with defect logs ['RCV-0025']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0026-1",
+      "unit_id": "UNIT-0026",
+      "charge_type": "inbound_defect_fee",
+      "amount": 1.0,
+      "shipment_id": "FBA-DUMMY-102",
+      "order_id": null,
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 1.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0026",
+        "PRP-0026"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0026",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-07 18:15:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0026",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-06 08:15:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'inbound_defect_fee' is CONTRADICTED by 2 verified evidence record(s): RCV-0026 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-06 08:15); PRP-0026 (PREP: PASS by PrepStation-op_dana (Official Prep) at 2026-06-07 18:15). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0030-1",
+      "unit_id": "UNIT-0030",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50030",
+      "sku": "SKU-SERUM-30",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0030",
+        "PRP-0030"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0030",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-07 10:35:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0030",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-06 14:35:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0030-1'. Favorable logs ['RCV-0030'] conflict with defect logs ['PRP-0030']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0031-1",
+      "unit_id": "UNIT-0031",
+      "charge_type": "lost_inbound",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": null,
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0031",
+        "PRP-0031"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0031",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-12 16:16:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0031",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-11 08:16:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'lost_inbound' is CONTRADICTED by 2 verified evidence record(s): RCV-0031 (RECEIVING: PASS by DockStation-op_chen (Official Receiving) at 2026-06-11 08:16); PRP-0031 (PREP: PASS by PrepStation-op_dana (Official Prep) at 2026-06-12 16:16). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0031-2",
+      "unit_id": "UNIT-0031",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50031",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 4.25,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0031",
+        "PRP-0031"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0031",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-12 16:16:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0031",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-11 08:16:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0031 (RECEIVING: PASS by DockStation-op_chen (Official Receiving) at 2026-06-11 08:16); PRP-0031 (PREP: PASS by PrepStation-op_dana (Official Prep) at 2026-06-12 16:16). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0035-1",
+      "unit_id": "UNIT-0035",
+      "charge_type": "inbound_defect_fee",
+      "amount": 0.5,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": null,
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 0.5,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0035"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0035",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-02 09:41:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'inbound_defect_fee' is CONTRADICTED by 1 verified evidence record(s): RCV-0035 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-02 09:41). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0035-2",
+      "unit_id": "UNIT-0035",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50035",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0035"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0035",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-02 09:41:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 1 verified evidence record(s): RCV-0035 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-02 09:41). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0036-1",
+      "unit_id": "UNIT-0036",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50036",
+      "sku": "SKU-PUZZLE-500",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0036",
+        "PRP-0036"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0036",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-08 04:15:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0036",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-06 22:15:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0036-1'. Favorable logs ['PRP-0036'] conflict with defect logs ['RCV-0036']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0038-1",
+      "unit_id": "UNIT-0038",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50038",
+      "sku": "SKU-PROT-1KG",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 5.1,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0038",
+        "PRP-0038"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0038",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-08 11:20:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0038",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-07 13:20:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0038 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-07 13:20); PRP-0038 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-08 11:20). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0038-2",
+      "unit_id": "UNIT-0038",
+      "charge_type": "refund_issued_item_not_returned",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50038",
+      "sku": "SKU-PROT-1KG",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RTN-0038"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RTN-0038",
+          "evidence_type": "returns",
+          "result": "DAMAGED",
+          "source": "ReturnsStation-op_eli (Official Returns)",
+          "timestamp": "2026-07-19 11:20:00",
+          "source_file": "returns_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'refund_issued_item_not_returned' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RTN-0038 (RETURNS: DAMAGED by ReturnsStation-op_eli (Official Returns) at 2026-07-19 11:20). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0039-1",
+      "unit_id": "UNIT-0039",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-103",
+      "order_id": "ORD-DUMMY-50039",
+      "sku": "SKU-SERUM-30",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 5.1,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0039",
+        "PRP-0039"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0039",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-02 16:55:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0039",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-02 11:55:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0039 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-02 11:55); PRP-0039 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-02 16:55). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0041-1",
+      "unit_id": "UNIT-0041",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-104",
+      "order_id": "ORD-DUMMY-50041",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0041"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0041",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_ben (Official Receiving)",
+          "timestamp": "2026-06-06 06:35:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_ben"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 1 verified evidence record(s): RCV-0041 (RECEIVING: PASS by DockStation-op_ben (Official Receiving) at 2026-06-06 06:35). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0041-2",
+      "unit_id": "UNIT-0041",
+      "charge_type": "refund_issued_item_not_returned",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-104",
+      "order_id": "ORD-DUMMY-50041",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RTN-0041"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RTN-0041",
+          "evidence_type": "returns",
+          "result": "DAMAGED",
+          "source": "ReturnsStation-op_dana (Official Returns)",
+          "timestamp": "2026-07-08 09:35:00",
+          "source_file": "returns_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Charge 'refund_issued_item_not_returned' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RTN-0041 (RETURNS: DAMAGED by ReturnsStation-op_dana (Official Returns) at 2026-07-08 09:35). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0042-1",
+      "unit_id": "UNIT-0042",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-104",
+      "order_id": "ORD-DUMMY-50042",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0042"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0042",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-02 02:30:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RCV-0042 (RECEIVING: DAMAGED by DockStation-op_eli (Official Receiving) at 2026-06-02 02:30). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0048-1",
+      "unit_id": "UNIT-0048",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-104",
+      "order_id": "ORD-DUMMY-50048",
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 5.1,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0048",
+        "PRP-0048"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0048",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-07 08:02:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0048",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-06 03:02:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0048 (RECEIVING: PASS by DockStation-op_chen (Official Receiving) at 2026-06-06 03:02); PRP-0048 (PREP: PASS by PrepStation-op_ben (Official Prep) at 2026-06-07 08:02). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0048-2",
+      "unit_id": "UNIT-0048",
+      "charge_type": "refund_issued_item_not_returned",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-104",
+      "order_id": "ORD-DUMMY-50048",
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RTN-0048"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RTN-0048",
+          "evidence_type": "returns",
+          "result": "INTACT",
+          "source": "ReturnsStation-op_dana (Official Returns)",
+          "timestamp": "2026-06-24 08:02:00",
+          "source_file": "returns_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Charge 'refund_issued_item_not_returned' is CONTRADICTED by 1 verified evidence record(s): RTN-0048 (RETURNS: INTACT by ReturnsStation-op_dana (Official Returns) at 2026-06-24 08:02). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0050-1",
+      "unit_id": "UNIT-0050",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-105",
+      "order_id": "ORD-DUMMY-50050",
+      "sku": "SKU-PUZZLE-500",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0050"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0050",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-10 15:07:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RCV-0050 (RECEIVING: DAMAGED by DockStation-op_chen (Official Receiving) at 2026-06-10 15:07). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0051-1",
+      "unit_id": "UNIT-0051",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.5,
+      "shipment_id": "FBA-DUMMY-105",
+      "order_id": "ORD-DUMMY-50051",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0051",
+        "PRP-0051"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0051",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-06 02:51:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0051",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-05 13:51:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0051-1'. Favorable logs ['PRP-0051'] conflict with defect logs ['RCV-0051']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0052-1",
+      "unit_id": "UNIT-0052",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-105",
+      "order_id": "ORD-DUMMY-50052",
+      "sku": "SKU-TOWEL-BLU",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0052",
+        "PRP-0052"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0052",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-08 06:33:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0052",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_ben (Official Receiving)",
+          "timestamp": "2026-06-07 02:33:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_ben"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0052-1'. Favorable logs ['PRP-0052'] conflict with defect logs ['RCV-0052']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0061-1",
+      "unit_id": "UNIT-0061",
+      "charge_type": "inbound_defect_fee",
+      "amount": 2.0,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": null,
+      "sku": "SKU-PROT-1KG",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 2.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0061",
+        "PRP-0061"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0061",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-10 07:28:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0061",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-09 14:28:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'inbound_defect_fee' is CONTRADICTED by 2 verified evidence record(s): RCV-0061 (RECEIVING: PASS by DockStation-op_chen (Official Receiving) at 2026-06-09 14:28); PRP-0061 (PREP: PASS by PrepStation-op_fatima (Official Prep) at 2026-06-10 07:28). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0061-2",
+      "unit_id": "UNIT-0061",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": "ORD-DUMMY-50061",
+      "sku": "SKU-PROT-1KG",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0061",
+        "PRP-0061"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0061",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-10 07:28:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0061",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-09 14:28:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0061 (RECEIVING: PASS by DockStation-op_chen (Official Receiving) at 2026-06-09 14:28); PRP-0061 (PREP: PASS by PrepStation-op_fatima (Official Prep) at 2026-06-10 07:28). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0063-1",
+      "unit_id": "UNIT-0063",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": "ORD-DUMMY-50063",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0063"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0063",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-06 08:06:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RCV-0063 (RECEIVING: DAMAGED by DockStation-op_amira (Official Receiving) at 2026-06-06 08:06). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0064-1",
+      "unit_id": "UNIT-0064",
+      "charge_type": "lost_inbound",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": null,
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0064",
+        "PRP-0064"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0064",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-09 14:33:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0064",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-08 22:33:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Charge 'lost_inbound' is SUPPORTED by 2 warehouse evidence record(s) confirming discrepancy: RCV-0064 (RECEIVING: DISCREPANCY by DockStation-op_fatima (Official Receiving) at 2026-06-08 22:33); PRP-0064 (PREP: FAIL by PrepStation-op_eli (Official Prep) at 2026-06-09 14:33). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0064-2",
+      "unit_id": "UNIT-0064",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": "ORD-DUMMY-50064",
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0064",
+        "PRP-0064"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0064",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-09 14:33:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0064",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-08 22:33:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 2 warehouse evidence record(s) confirming discrepancy: RCV-0064 (RECEIVING: DISCREPANCY by DockStation-op_fatima (Official Receiving) at 2026-06-08 22:33); PRP-0064 (PREP: FAIL by PrepStation-op_eli (Official Prep) at 2026-06-09 14:33). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0065-1",
+      "unit_id": "UNIT-0065",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-106",
+      "order_id": "ORD-DUMMY-50065",
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0065",
+        "PRP-0065"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0065",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-09 16:40:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0065",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-08 01:40:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0065-1'. Favorable logs ['RCV-0065'] conflict with defect logs ['PRP-0065']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0071-1",
+      "unit_id": "UNIT-0071",
+      "charge_type": "inbound_defect_fee",
+      "amount": 1.0,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": null,
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 1.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0071",
+        "PRP-0071"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0071",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-07 05:03:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0071",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-06 13:03:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'inbound_defect_fee' is CONTRADICTED by 2 verified evidence record(s): RCV-0071 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-06 13:03); PRP-0071 (PREP: PASS by PrepStation-op_eli (Official Prep) at 2026-06-07 05:03). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0071-2",
+      "unit_id": "UNIT-0071",
+      "charge_type": "damaged_in_warehouse",
+      "amount": 14.0,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": null,
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 14.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0071",
+        "PRP-0071"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0071",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-07 05:03:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0071",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-06 13:03:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'damaged_in_warehouse' is CONTRADICTED by 2 verified evidence record(s): RCV-0071 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-06 13:03); PRP-0071 (PREP: PASS by PrepStation-op_eli (Official Prep) at 2026-06-07 05:03). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0071-3",
+      "unit_id": "UNIT-0071",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": "ORD-DUMMY-50071",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0071",
+        "PRP-0071"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0071",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-07 05:03:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0071",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-06 13:03:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0071 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-06 13:03); PRP-0071 (PREP: PASS by PrepStation-op_eli (Official Prep) at 2026-06-07 05:03). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0073-1",
+      "unit_id": "UNIT-0073",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": "ORD-DUMMY-50073",
+      "sku": "SKU-LEASH-6FT",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0073",
+        "PRP-0073"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0073",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_amira (Official Prep)",
+          "timestamp": "2026-06-07 02:25:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_amira"
+        },
+        {
+          "evidence_id": "RCV-0073",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-05 15:25:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0073 (RECEIVING: PASS by DockStation-op_eli (Official Receiving) at 2026-06-05 15:25); PRP-0073 (PREP: PASS by PrepStation-op_amira (Official Prep) at 2026-06-07 02:25). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0074-1",
+      "unit_id": "UNIT-0074",
+      "charge_type": "inbound_defect_fee",
+      "amount": 0.5,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": null,
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0074",
+        "PRP-0074"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0074",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-11 02:13:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0074",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-10 04:13:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0074-1'. Favorable logs ['PRP-0074'] conflict with defect logs ['RCV-0074']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0074-2",
+      "unit_id": "UNIT-0074",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": "ORD-DUMMY-50074",
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0074",
+        "PRP-0074"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0074",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_eli (Official Prep)",
+          "timestamp": "2026-06-11 02:13:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_eli"
+        },
+        {
+          "evidence_id": "RCV-0074",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-10 04:13:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0074-2'. Favorable logs ['PRP-0074'] conflict with defect logs ['RCV-0074']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0076-1",
+      "unit_id": "UNIT-0076",
+      "charge_type": "lost_inbound",
+      "amount": 0.0,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": null,
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0076",
+        "PRP-0076"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0076",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-05 14:27:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0076",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-04 14:27:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0076-1'. Favorable logs ['PRP-0076'] conflict with defect logs ['RCV-0076']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0076-2",
+      "unit_id": "UNIT-0076",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": "ORD-DUMMY-50076",
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0076",
+        "PRP-0076"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0076",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-05 14:27:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0076",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_dana (Official Receiving)",
+          "timestamp": "2026-06-04 14:27:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_dana"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0076-2'. Favorable logs ['PRP-0076'] conflict with defect logs ['RCV-0076']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0077-1",
+      "unit_id": "UNIT-0077",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-107",
+      "order_id": "ORD-DUMMY-50077",
+      "sku": "SKU-LAMP-LED",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 4.25,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0077",
+        "PRP-0077"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0077",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-11 21:02:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0077",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-09 21:02:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0077 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-09 21:02); PRP-0077 (PREP: PASS by PrepStation-op_dana (Official Prep) at 2026-06-11 21:02). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0081-1",
+      "unit_id": "UNIT-0081",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-108",
+      "order_id": "ORD-DUMMY-50081",
+      "sku": "SKU-PROT-1KG",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0081",
+        "PRP-0081"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0081",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-09 23:50:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0081",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-09 05:50:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0081-1'. Favorable logs ['PRP-0081'] conflict with defect logs ['RCV-0081']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0084-1",
+      "unit_id": "UNIT-0084",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-108",
+      "order_id": "ORD-DUMMY-50084",
+      "sku": "SKU-BOTTLE-750",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 5.1,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0084",
+        "PRP-0084"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0084",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_chen (Official Prep)",
+          "timestamp": "2026-06-07 20:07:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_chen"
+        },
+        {
+          "evidence_id": "RCV-0084",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_fatima (Official Receiving)",
+          "timestamp": "2026-06-07 11:07:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_fatima"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0084 (RECEIVING: PASS by DockStation-op_fatima (Official Receiving) at 2026-06-07 11:07); PRP-0084 (PREP: PASS by PrepStation-op_chen (Official Prep) at 2026-06-07 20:07). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0085-1",
+      "unit_id": "UNIT-0085",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 4.25,
+      "shipment_id": "FBA-DUMMY-108",
+      "order_id": "ORD-DUMMY-50085",
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0085",
+        "PRP-0085"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0085",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-06 03:07:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0085",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_ben (Official Receiving)",
+          "timestamp": "2026-06-04 19:07:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_ben"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0085-1'. Favorable logs ['PRP-0085'] conflict with defect logs ['RCV-0085']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0090-1",
+      "unit_id": "UNIT-0090",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50090",
+      "sku": "SKU-MUG-11",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0090",
+        "PRP-0090"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0090",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_amira (Official Prep)",
+          "timestamp": "2026-06-05 12:12:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_amira"
+        },
+        {
+          "evidence_id": "RCV-0090",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-04 05:12:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0090 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-04 05:12); PRP-0090 (PREP: PASS by PrepStation-op_amira (Official Prep) at 2026-06-05 12:12). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0092-1",
+      "unit_id": "UNIT-0092",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50092",
+      "sku": "SKU-SERUM-30",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0092",
+        "PRP-0092"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0092",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_dana (Official Prep)",
+          "timestamp": "2026-06-11 12:15:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_dana"
+        },
+        {
+          "evidence_id": "RCV-0092",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_ben (Official Receiving)",
+          "timestamp": "2026-06-10 20:15:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_ben"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0092 (RECEIVING: PASS by DockStation-op_ben (Official Receiving) at 2026-06-10 20:15); PRP-0092 (PREP: PASS by PrepStation-op_dana (Official Prep) at 2026-06-11 12:15). Defensible recovery claim generated."
+    },
+    {
+      "charge_id": "FEE-0093-1",
+      "unit_id": "UNIT-0093",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 5.1,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50093",
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "SUPPORTED",
+      "ai_verdict": "SUPPORTED",
+      "claim_amount": 0.0,
+      "evidence_count": 1,
+      "evidence_ids": [
+        "RCV-0093"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "RCV-0093",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-10 03:01:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is SUPPORTED by 1 warehouse evidence record(s) confirming discrepancy: RCV-0093 (RECEIVING: DISCREPANCY by DockStation-op_amira (Official Receiving) at 2026-06-10 03:01). Charge penalty is valid; no claim defensible."
+    },
+    {
+      "charge_id": "FEE-0094-1",
+      "unit_id": "UNIT-0094",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50094",
+      "sku": "SKU-MUG-11",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0094",
+        "PRP-0094"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0094",
+          "evidence_type": "prep",
+          "result": "FAIL",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-02 06:10:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0094",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_ben (Official Receiving)",
+          "timestamp": "2026-06-01 20:10:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_ben"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0094-1'. Favorable logs ['RCV-0094'] conflict with defect logs ['PRP-0094']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0095-1",
+      "unit_id": "UNIT-0095",
+      "charge_type": "inbound_defect_fee",
+      "amount": 0.5,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": null,
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0095",
+        "PRP-0095"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0095",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-04 05:03:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0095",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-03 09:03:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0095-1'. Favorable logs ['PRP-0095'] conflict with defect logs ['RCV-0095']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0095-2",
+      "unit_id": "UNIT-0095",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 6.35,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50095",
+      "sku": "SKU-CANDLE-3",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0095",
+        "PRP-0095"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0095",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_ben (Official Prep)",
+          "timestamp": "2026-06-04 05:03:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_ben"
+        },
+        {
+          "evidence_id": "RCV-0095",
+          "evidence_type": "receiving",
+          "result": "DAMAGED",
+          "source": "DockStation-op_chen (Official Receiving)",
+          "timestamp": "2026-06-03 09:03:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_chen"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0095-2'. Favorable logs ['PRP-0095'] conflict with defect logs ['RCV-0095']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0096-1",
+      "unit_id": "UNIT-0096",
+      "charge_type": "inbound_defect_fee",
+      "amount": 2.0,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": null,
+      "sku": "SKU-CABLE-USBC",
+      "deterministic_verdict": "SILENT",
+      "ai_verdict": "SILENT",
+      "claim_amount": 0.0,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0096",
+        "PRP-0096"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0096",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_fatima (Official Prep)",
+          "timestamp": "2026-06-08 18:16:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_fatima"
+        },
+        {
+          "evidence_id": "RCV-0096",
+          "evidence_type": "receiving",
+          "result": "DISCREPANCY",
+          "source": "DockStation-op_eli (Official Receiving)",
+          "timestamp": "2026-06-07 04:16:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_eli"
+        }
+      ],
+      "reason": "Conflicting evidence detected for charge 'FEE-0096-1'. Favorable logs ['PRP-0096'] conflict with defect logs ['RCV-0096']. Ambiguity prefers SILENT."
+    },
+    {
+      "charge_id": "FEE-0099-1",
+      "unit_id": "UNIT-0099",
+      "charge_type": "fulfilment_fee_weight_tier",
+      "amount": 3.5,
+      "shipment_id": "FBA-DUMMY-109",
+      "order_id": "ORD-DUMMY-50099",
+      "sku": "SKU-TOWEL-BLU",
+      "deterministic_verdict": "CONTRADICTED",
+      "ai_verdict": "CONTRADICTED",
+      "claim_amount": 3.5,
+      "evidence_count": 2,
+      "evidence_ids": [
+        "RCV-0099",
+        "PRP-0099"
+      ],
+      "traceable_to_official_source": true,
+      "evidence_records": [
+        {
+          "evidence_id": "PRP-0099",
+          "evidence_type": "prep",
+          "result": "PASS",
+          "source": "PrepStation-op_amira (Official Prep)",
+          "timestamp": "2026-06-02 08:06:00",
+          "source_file": "prep_sample.csv",
+          "operator_id": "op_amira"
+        },
+        {
+          "evidence_id": "RCV-0099",
+          "evidence_type": "receiving",
+          "result": "PASS",
+          "source": "DockStation-op_amira (Official Receiving)",
+          "timestamp": "2026-06-01 11:06:00",
+          "source_file": "receiving_sample.csv",
+          "operator_id": "op_amira"
+        }
+      ],
+      "reason": "Charge 'fulfilment_fee_weight_tier' is CONTRADICTED by 2 verified evidence record(s): RCV-0099 (RECEIVING: PASS by DockStation-op_amira (Official Receiving) at 2026-06-01 11:06); PRP-0099 (PREP: PASS by PrepStation-op_amira (Official Prep) at 2026-06-02 08:06). Defensible recovery claim generated."
+    }
+  ]
+}
