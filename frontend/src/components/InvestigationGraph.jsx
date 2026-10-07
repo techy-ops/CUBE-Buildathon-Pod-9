@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchInvestigationGraph } from '../services/api';
+import { fetchInvestigationGraph, simulateEvidenceFeedback } from '../services/api';
 import VerdictBadge from './VerdictBadge';
 import {
   GitCommit,
@@ -18,7 +18,8 @@ import {
   Package,
   Truck,
   Box,
-  Cpu
+  Cpu,
+  RotateCcw
 } from 'lucide-react';
 
 export default function InvestigationGraph({ chargeId, onInvestigateAI }) {
@@ -26,6 +27,7 @@ export default function InvestigationGraph({ chargeId, onInvestigateAI }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('both'); // 'both', 'graph', 'timeline'
+  const [submittingStage, setSubmittingStage] = useState(null);
 
   const loadGraph = async () => {
     setLoading(true);
@@ -38,6 +40,23 @@ export default function InvestigationGraph({ chargeId, onInvestigateAI }) {
       setError(err.message || 'Failed to load investigation graph');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSimulateFeedback = async (stage) => {
+    setSubmittingStage(stage);
+    try {
+      await simulateEvidenceFeedback({
+        chargeId: chargeId,
+        upstreamStage: stage,
+        result: 'PASS',
+        description: `Simulated closed-loop evidence submission from ${stage.toUpperCase()} workstation`
+      });
+      await loadGraph();
+    } catch (err) {
+      alert(`Evidence feedback submission failed: ${err.message}`);
+    } finally {
+      setSubmittingStage(null);
     }
   };
 
@@ -394,19 +413,34 @@ export default function InvestigationGraph({ chargeId, onInvestigateAI }) {
             </div>
           ) : (
             <div className="space-y-2">
-              {data.missing_evidence_types.map((mType, idx) => (
-                <div key={idx} className="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/30 text-[11px] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-amber-300 uppercase">{mType} Inspection</span>
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
-                      MISSING
-                    </span>
+              {data.missing_evidence_types.map((mType, idx) => {
+                const isSubmitting = submittingStage === mType;
+                return (
+                  <div key={idx} className="p-2.5 rounded-lg bg-amber-950/20 border border-amber-500/30 text-[11px] space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amber-300 uppercase">{mType} Inspection</span>
+                      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
+                        MISSING
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-[11px]">
+                      Expected operational proof is absent from warehouse telemetry.
+                    </p>
+                    <div className="pt-1 flex items-center justify-between border-t border-amber-500/20">
+                      <span className="text-[10px] text-amber-400 font-mono">Closed-Loop Stage: {mType}</span>
+                      <button
+                        onClick={() => handleSimulateFeedback(mType)}
+                        disabled={isSubmitting}
+                        className="btn btn-secondary btn-sm !py-0.5 !px-2 text-[10px] flex items-center gap-1 border-amber-500/30 text-amber-300 hover:text-white"
+                        title="Simulate routing gap back to upstream stage and re-investigating"
+                      >
+                        <RotateCcw className={`h-3 w-3 ${isSubmitting ? 'animate-spin' : ''}`} />
+                        <span>{isSubmitting ? 'Submitting...' : `Submit ${mType} Proof`}</span>
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-slate-300 text-[11px]">
-                    Expected operational proof is absent from warehouse telemetry.
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

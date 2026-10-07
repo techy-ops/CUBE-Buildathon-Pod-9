@@ -271,6 +271,11 @@ export default function EvidenceHealthSection({ onSelectCharge }) {
                       </td>
                       <td className="text-xs text-slate-300 max-w-[280px]">
                         <p className="truncate" title={item.description}>{item.description}</p>
+                        {item.responsible_stage && (
+                          <div className="text-[10px] text-cyan-400 mt-0.5 font-mono">
+                            Upstream Route: <strong className="uppercase">{item.responsible_stage}</strong>
+                          </div>
+                        )}
                         {item.expected_types && item.expected_types.length > 0 && (
                           <div className="text-[10px] text-amber-400 mt-0.5">
                             Expected: {item.expected_types.join(', ')}

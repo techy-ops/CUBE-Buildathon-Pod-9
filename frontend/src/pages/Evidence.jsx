@@ -109,6 +109,11 @@ export default function Evidence() {
                     <span className="font-mono font-bold text-xs text-blue-400">
                       {ev.evidence_id}
                     </span>
+                    {ev.source_dataset === 'cube_official' && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono font-semibold">
+                        Cube Official
+                      </span>
+                    )}
                     <span className="text-[11px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">
                       {ev.evidence_type}
                     </span>
@@ -140,16 +145,25 @@ export default function Evidence() {
 
                 {/* Traceability links */}
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono text-slate-400 pt-1 border-t border-slate-800/80">
+                  {ev.unit_id && <span>Unit: <strong className="text-cyan-400">{ev.unit_id}</strong></span>}
                   <span>Shipment: <strong className="text-slate-300">{ev.shipment_id || '—'}</strong></span>
                   <span>Order: <strong className="text-slate-300">{ev.order_id || '—'}</strong></span>
                   <span>SKU: <strong className="text-slate-300">{ev.sku || '—'}</strong></span>
                 </div>
 
-                {/* Metadata JSON if present */}
+                {/* Metadata JSON / File lineage if present */}
                 {ev.reference_data && Object.keys(ev.reference_data).length > 0 && (
-                  <div className="p-2 rounded bg-slate-950 font-mono text-[11px] text-slate-400 truncate">
-                    <span className="text-slate-500 mr-2 font-bold">META:</span>
-                    {JSON.stringify(ev.reference_data)}
+                  <div className="p-2 rounded bg-slate-950 font-mono text-[11px] text-slate-400 flex items-center justify-between">
+                    <div className="truncate">
+                      <span className="text-slate-500 mr-2 font-bold">SOURCE:</span>
+                      <span className="text-slate-300">{ev.reference_data.source_file || 'operational_log'}</span>
+                      {ev.reference_data.source_row && (
+                        <span className="text-slate-500 ml-1">(row {ev.reference_data.source_row})</span>
+                      )}
+                    </div>
+                    {ev.reference_data.operator_verdict && (
+                      <span className="text-slate-400 font-semibold shrink-0">Verdict: {ev.reference_data.operator_verdict}</span>
+                    )}
                   </div>
                 )}
               </div>

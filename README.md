@@ -3,9 +3,9 @@
 > **Cube Buildathon · Commerce Context Stream · Step 5: Recovery Manager**  
 > An autonomous operational and financial dispute recovery agent that matches marketplace fulfillment charges against physical warehouse proof, resolves entities, and generates defensible recovery claims with 100% evidence traceability.
 
-[![Backend Tests](https://img.shields.io/badge/Backend%20Tests-60%2F60%20Passed-emerald.svg)](backend/tests/)
-[![Evaluation Accuracy](https://img.shields.io/badge/Evaluation%20Accuracy-100%25-blue.svg)](backend/app/services/evaluation.py)
-[![Unsupported Claim Rate](https://img.shields.io/badge/Unsupported%20Claim%20Rate-0.0%25-purple.svg)](backend/app/services/claims.py)
+[![Backend Tests](https://img.shields.io/badge/Backend%20Tests-70%2F70%20Passed-emerald.svg)](backend/tests/)
+[![Official Cube Evaluation](https://img.shields.io/badge/Official%20Cube%20Eval-100%25%20Traceability%20%7C%200%25%20Unsupported-blue.svg)](evaluation/official/REPORT.md)
+[![Internal Regression Benchmark](https://img.shields.io/badge/Internal%20Regression-30%20Cases%20(Dev%20Suite)-purple.svg)](evaluation/regression/REPORT.md)
 [![Architecture Document](https://img.shields.io/badge/Architecture-ARCHITECTURE.md-indigo.svg)](ARCHITECTURE.md)
 
 ---
@@ -19,14 +19,38 @@ In physical commerce operations:
 2. **Account Standing Risk**: Contesting charges requires concrete proof. Filing unsupported, speculative, or fabricated claims jeopardizes the seller's account standing with the channel.
 3. **Evidence Latency & Blind Spots**: Merchants lack visibility into whether warehouse proof actually exists before dispute submission windows expire.
 
-**Position in the Fulfillment Chain (Step 5 of 5 — Money Back)**:
+**Position in the Fulfillment Chain & Shared Evidence Store**:
 ```text
- Supplier Delivery      Inbound to Channel     Outbound to Buyer     Customer Return        Money Back
- ┌──────────────┐      ┌──────────────┐      ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
- │ 01 Receiving │ ───▶ │ 02 Prep      │ ───▶ │ 03 Pack      │ ───▶ │ 04 Returns   │ ───▶ │ 05 Recovery  │
- │ condition on │      │ compliance   │      │ contents at  │      │ condition &  │      │ reads all    │
- │ arrival      │      │ proof        │      │ seal         │      │ disposition  │      │ four → claim │
- └──────────────┘      └──────────────┘      └──────────────┘      └──────────────┘      └──────────────┘
+  Receiving ──────▶ Prep ─────────▶ Pack ─────────▶ Returns
+(dock check-in) (polybag/barcode) (camera/weight)  (RMA audit)
+      │                │               │                │
+      ▼                ▼               ▼                ▼
+   ┌────────────────────────────────────────────────────────┐
+   │             Shared Evidence Repository Store           │
+   └───────────────────────────┬────────────────────────────┘
+                               │
+                               ▼
+                          RecoveryOS
+                               │
+            ┌──────────────────┴──────────────────┐
+            ▼                                     ▼
+     Evidence Health                       AI Investigation
+      & Gap Detection                       (Gemini 2.5)
+            │                                     │
+            ▼                                     ▼
+       EvidenceGap                         Deterministic
+    (Responsible Stage)                     Validation
+            │                                     │
+            ▼                                     ▼
+      Upstream Stage                       ┌──────────────┐
+     (Receiving/Prep/                      │    Claim /   │
+      Pack/Returns)                        │  No Claim /  │
+            │                              │ Human Review │
+            ▼                              └──────────────┘
+     New Verification
+            │
+            ▼
+     Re-investigation (Closed-Loop Resolution)
 ```
 Unlike the first four visual capture agents, **Recovery Manager has no camera**. It ingests the structured evidence records produced by the upstream managers, matches them against channel fee reports, and deterministically generates audit-ready claims.
 
@@ -116,32 +140,79 @@ The interactive web portal provides:
 
 ---
 
-## 7. Evaluation & Benchmark Results
+---
 
-The repository includes a dedicated 30-case ground-truth evaluation benchmark suite ([backend/app/services/evaluation.py](backend/app/services/evaluation.py)) tested via [backend/tests/test_evaluation.py](backend/tests/test_evaluation.py).
+## 7. Official Cube Build-A-Thon Dataset Pipeline & Evaluation
 
-### Verified Evaluation Metrics
+RecoveryOS genuinely consumes, normalizes, investigates, and evaluates against the **OFFICIAL Cube Build-A-Thon Recovery Manager dataset** located in `data/` (originating from [Cube-Build-A-Thon/cube-05-recovery-manager](https://github.com/Cube-Build-A-Thon/cube-05-recovery-manager)).
 
-| Metric | Benchmark Result | Requirement / Target | Verification Status |
+### Official Data Files Ingested Directly
+The system reads the raw official CSV files directly without manual schema modifications:
+
+| File Path | Official Stage / Domain | Record Count | Key Fields Mapped |
 |---|---|---|---|
-| **Total Benchmark Cases** | **30 Cases** | ≥ 30 Cases | Verified by `test_evaluation_suite_dataset_count` |
-| **Verdict Accuracy** | **100.00%** | ≥ 90.0% | Verified by `test_evaluation_suite_execution` |
-| **Claim Correctness** | **100.00%** | ≥ 90.0% | Verified by `test_evaluation_suite_execution` |
-| **Evidence Precision** | **100.00%** | ≥ 90.0% | Verified by `test_evaluation_suite_execution` |
-| **Evidence Recall** | **100.00%** | ≥ 90.0% | Verified by `test_evaluation_suite_execution` |
-| **Unsupported Claim Rate** | **0.00%** | **0.0% (Zero Tolerance)**| Verified by `test_evaluation_suite_execution` |
-| **Evidence Traceability** | **100.00%** | 100.0% | Verified by `test_evaluation_suite_execution` |
-| **AI / Deterministic Agreement** | **100.00%** | ≥ 95.0% | Verified by `test_evaluation_suite_execution` |
+| `data/fee_report_sample.csv` | Channel Fee Report | **61 records** ($202.70 gross) | `charge_id`, `shipment_id`, `sku`, `unit_id`, `fee_type`, `amount` |
+| `data/upstream/receiving_sample.csv` | 01 Receiving (Dock) | **100 records** | `receiving_id`, `shipment_id`, `unit_id`, `carton_damage`, `unit_damage`, `operator_verdict` |
+| `data/upstream/prep_sample.csv` | 02 Prep (Workstation) | **62 records** | `prep_id`, `shipment_id`, `unit_id`, `polybag_present_sealed`, `original_barcode_covered`, `operator_verdict` |
+| `data/upstream/pack_sample.csv` | 03 Pack (Scale/Scan) | **29 records** | `pack_id`, `shipment_id`, `unit_id`, `scale_weight_kg`, `scanner_barcode_read`, `operator_verdict` |
+| `data/upstream/returns_sample.csv` | 04 Returns (RMA) | **24 records** | `return_id`, `order_id`, `unit_id`, `observed_state`, `operator_disposition` |
+| **Total Official Dataset** | **Complete Upstream Telemetry** | **276 records** | **Full relational normalization into RecoveryOS** |
 
-### Primary Benchmark Metric
-$$\text{Claim Precision} = \frac{\text{Correctly Supported Claims}}{\text{All Claims Recommended}} = \frac{11}{11} = 100.0\%$$
+### Official Entity Resolution & Cross-Stage Linking
+- **Unit-Level Evidence Isolation (`unit_id`)**: The official dataset contains multi-unit shipments (e.g. `UNIT-0010` through `UNIT-0018` all sharing shipment `FBA-DUMMY-101`). RecoveryOS isolates evidence at the `unit_id` level, ensuring an inspection pass or defect on one unit is **never** mistakenly attached to a different charge.
+- **Official Charge Categories**: Mapped directly to operational inspection stations:
+  - `inbound_defect_fee` ➔ prep & receiving inspections
+  - `lost_inbound` ➔ receiving dock check-in audits
+  - `refund_issued_item_not_returned` ➔ returns RMA disposition logs
+  - `damaged_in_warehouse` ➔ receiving & prep condition logs
+  - `fulfilment_fee_weight_tier` ➔ packing scale & dimensions (routine channel fees correctly held in `SILENT` with $0.00 claim)
 
-- **Total Charges Evaluated in Benchmark**: 30
-- **Claims Recommended**: 11 (Cases 5–8, 23, 25, 26, 27, and related contradicted cases)
-- **Correctly Supported Claims**: 11
-- **Incorrectly Recommended Claims (False Claims)**: **0**
-- **Missed Recoverable Claims**: **0**
-- **Uncertain / Silent Rate**: 50.0% (15 of 30 cases safely held in `SILENT` due to missing, partial, or conflicting logs)
+### Official Dataset Functional Evaluation Results
+Evaluated exclusively against the official Cube dataset via [evaluation/official/run_official_eval.py](evaluation/official/run_official_eval.py) (machine-readable results in [evaluation/official/results.json](evaluation/official/results.json)):
+
+| Property Measured | Empirical Result | Methodology / Standard | Status |
+|---|---|---|---|
+| **Ingestion Coverage** | **100.0%** (61/61 Charges) | All 61 official fee report rows successfully normalized | Verified |
+| **Evidence Ingestion Coverage** | **100.0%** (215/215 Logs) | All operational evidence records ingested without drop | Verified |
+| **Entity Resolution Success** | **100.0%** (61/61 Resolved) | Zero unresolved records; `unit_id` & `shipment_id` mapped | Verified |
+| **Evidence Traceability Rate** | **100.0%** (215/215 Traceable) | Every decision cites traceable official source CSV and row | Verified |
+| **Unsupported Claim Rate** | **0.0% (Zero Hallucinations)** | AI and deterministic engine never generate baseless claims | Verified |
+| **AI / Deterministic Agreement** | **100.0%** | AI reasoning validated against deterministic safety baseline | Verified |
+| **Defensible Recovery Identified** | **$102.75** USD | 6 fee charges legitimately contradicted by official logs | Measured |
+| **Valid Fee Detection** | **4 Charges** ($0.00 claim) | Official logs confirm defects (e.g. carton/unit damage logged) | Measured |
+| **Safe Silent / Review Hold** | **51 Charges** (83.6%) | Missing upstream records or routine fees held safely | Measured |
+| **Evidence Gaps Detected** | **51 Gaps** | Formal gap detection identifying missing upstream station telemetry | Measured |
+
+> [!NOTE]
+> Because the official Cube dataset represents raw operational logs rather than synthetic labeled test cases, the system reports **real, measured properties** (coverage, resolution success, traceability, unsupported-claim rate, and defensible recovery pool) instead of fabricating artificial ground-truth labels.
+
+---
+
+## 8. Internal Regression Benchmark (30 Self-Authored Cases)
+
+> [!IMPORTANT]
+> **Purpose**: The 30-case benchmark ([backend/app/services/evaluation.py](backend/app/services/evaluation.py)) is an **internal regression suite** designed specifically for developer regression prevention, edge-case testing, and safety boundary verification (e.g., verifying AI fallback on rate limits, handling malformed IDs, and preventing sibling SKU leakage). It is **not** presented as the official benchmark evaluation.
+
+### Internal Regression Metrics ([evaluation/regression/REPORT.md](evaluation/regression/REPORT.md))
+
+| Metric | Internal Regression Result | Purpose / Guardrail |
+|---|---|---|
+| **Total Test Cases** | **30 Cases** | Regression suite covering 9 distinct failure modes |
+| **Verdict Accuracy** | **96.7% – 100.0%** | Verified by `test_evaluation.py` across all scenarios |
+| **Claim Correctness** | **100.00%** | Zero monetary calculation errors |
+| **Unsupported Claim Rate** | **0.00%** | Verified zero tolerance for unsupported claims |
+| **Evidence Traceability** | **100.00%** | 100% of claims cite verified evidence IDs |
+| **Primary Claim Precision** | **100.0% (11 / 11)** | Zero false claims recommended across regression suite |
+
+---
+
+## 9. Closed-Loop Evidence Feedback Loop
+
+When required evidence is missing for a levied charge:
+1. **Evidence Gap Identification**: The engine identifies the missing stage (`receiving`, `prep`, `packing`, or `returns`).
+2. **Upstream Routing**: Creates an `EvidenceGap` item specifying the `responsible_stage` and expected proof requirements.
+3. **Upstream Telemetry Ingestion / Simulation**: Upstream workstations can submit verified logs via `POST /api/feedback/simulate`.
+4. **Automated Re-Investigation**: Persists verified evidence with audit lineage and automatically triggers re-investigation, transforming `SILENT` holds into defensible recovery claims.
 
 ---
 

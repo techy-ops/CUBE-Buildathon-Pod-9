@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchSummary, fetchCharges, assessAllCharges, seedDemoData } from '../services/api';
+import { fetchSummary, fetchCharges, assessAllCharges, seedDemoData, ingestOfficialData, fetchOfficialStatus } from '../services/api';
 import VerdictBadge from '../components/VerdictBadge';
 import EvidenceHealthSection from '../components/EvidenceHealthSection';
-import { DollarSign, ShieldAlert, CheckCircle2, HelpCircle, ArrowUpRight, PlayCircle, RefreshCw, AlertCircle, ArrowRight } from 'lucide-react';
+import { DollarSign, ShieldAlert, CheckCircle2, HelpCircle, ArrowUpRight, PlayCircle, RefreshCw, AlertCircle, ArrowRight, Database } from 'lucide-react';
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [isAssessingAll, setIsAssessingAll] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isIngestingOfficial, setIsIngestingOfficial] = useState(false);
 
   const loadData = async () => {
     try {
@@ -59,6 +60,19 @@ export default function Dashboard() {
     }
   };
 
+  const handleLoadOfficial = async () => {
+    setIsIngestingOfficial(true);
+    try {
+      await ingestOfficialData(false);
+      await assessAllCharges();
+      await loadData();
+    } catch (err) {
+      alert(`Failed to load official data: ${err.message}`);
+    } finally {
+      setIsIngestingOfficial(false);
+    }
+  };
+
   const formatMoney = (val) => `$${Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   if (loading) {
@@ -97,12 +111,22 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleLoadOfficial}
+            disabled={isIngestingOfficial}
+            className="btn btn-secondary btn-sm flex items-center gap-1.5 border-blue-500/40 text-blue-300 hover:text-white"
+            title="Ingests official Cube Build-A-Thon CSVs (61 charges, 215 evidence)"
+          >
+            <Database className={`h-3.5 w-3.5 ${isIngestingOfficial ? 'animate-spin text-blue-400' : 'text-blue-400'}`} />
+            <span>{isIngestingOfficial ? 'Ingesting Official...' : 'Load Official Cube Dataset'}</span>
+          </button>
+
           <button
             onClick={handleSeedDemo}
             disabled={isSeeding}
             className="btn btn-secondary btn-sm"
-            title="Reloads canonical test cases"
+            title="Reloads canonical internal test cases"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isSeeding ? 'animate-spin' : ''}`} />
             <span>{isSeeding ? 'Resetting...' : 'Reset Demo Suite'}</span>
