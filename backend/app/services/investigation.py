@@ -116,7 +116,9 @@ class InvestigationGraphService:
                 "amount": charge.amount,
                 "currency": charge.currency,
                 "reason": charge.reason,
-                "charge_date": str(charge.charge_date)
+                "charge_date": str(charge.charge_date),
+                "unit_id": getattr(charge, "unit_id", None),
+                "source_dataset": getattr(charge, "source_dataset", "internal")
             }
         ))
 
@@ -206,7 +208,10 @@ class InvestigationGraphService:
                         "result": ev.result,
                         "source": ev.source,
                         "timestamp": str(ev.timestamp),
-                        "description": ev.description
+                        "description": ev.description,
+                        "unit_id": getattr(ev, "unit_id", None),
+                        "source_dataset": getattr(ev, "source_dataset", "internal"),
+                        "reference_data": ev.reference_data
                     }
                 ))
 
