@@ -13,6 +13,8 @@ class Charge(Base):
     shipment_id = Column(String(100), nullable=True, index=True)
     order_id = Column(String(100), nullable=True, index=True)
     sku = Column(String(100), nullable=True, index=True)
+    unit_id = Column(String(100), nullable=True, index=True)  # Official Cube unit_id
+    source_dataset = Column(String(50), default="internal", nullable=False, index=True)  # "cube_official" or "internal"
     reason = Column(String(255), nullable=False, index=True)
     amount = Column(Float, nullable=False)
     currency = Column(String(10), default="USD", nullable=False)
@@ -50,6 +52,8 @@ class Evidence(Base):
     shipment_id = Column(String(100), nullable=True, index=True)
     order_id = Column(String(100), nullable=True, index=True)
     sku = Column(String(100), nullable=True, index=True)
+    unit_id = Column(String(100), nullable=True, index=True)  # Official Cube unit_id
+    source_dataset = Column(String(50), default="internal", nullable=False, index=True)  # "cube_official" or "internal"
     result = Column(String(50), nullable=False)  # PASS, FAIL, VERIFIED, DISCREPANCY, DAMAGED, INTACT, etc.
     description = Column(Text, nullable=False)
     timestamp = Column(DateTime, default=utc_now, nullable=False)
