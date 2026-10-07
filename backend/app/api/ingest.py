@@ -47,19 +47,79 @@ async def ingest_data(
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Invalid JSON file format: {str(e)}")
         elif filename.endswith(".csv"):
+            csv_str = content.decode("utf-8")
+            rt = str(record_type or "").strip().lower()
+
+            # Auto-detect official Cube CSV file types
+            if "fee_report" in filename or rt in {"official_fees", "official_charges", "fee_report"}:
+                from app.services.official_adapter import OfficialDataAdapter
+                cnt, errs = OfficialDataAdapter.ingest_fee_report_csv(db, csv_str, filename)
+                return IngestResult(
+                    success=len(errs) == 0,
+                    charges_ingested=cnt,
+                    orders_ingested=0,
+                    shipments_ingested=0,
+                    evidence_ingested=0,
+                    errors=errs
+                )
+            elif "receiving" in filename or rt in {"official_receiving", "receiving"}:
+                from app.services.official_adapter import OfficialDataAdapter
+                cnt, errs = OfficialDataAdapter.ingest_receiving_csv(db, csv_str, filename)
+                return IngestResult(
+                    success=len(errs) == 0,
+                    charges_ingested=0,
+                    orders_ingested=0,
+                    shipments_ingested=0,
+                    evidence_ingested=cnt,
+                    errors=errs
+                )
+            elif "prep" in filename or rt in {"official_prep", "prep"}:
+                from app.services.official_adapter import OfficialDataAdapter
+                cnt, errs = OfficialDataAdapter.ingest_prep_csv(db, csv_str, filename)
+                return IngestResult(
+                    success=len(errs) == 0,
+                    charges_ingested=0,
+                    orders_ingested=0,
+                    shipments_ingested=0,
+                    evidence_ingested=cnt,
+                    errors=errs
+                )
+            elif "pack" in filename or rt in {"official_pack", "pack", "packing"}:
+                from app.services.official_adapter import OfficialDataAdapter
+                cnt, errs = OfficialDataAdapter.ingest_pack_csv(db, csv_str, filename)
+                return IngestResult(
+                    success=len(errs) == 0,
+                    charges_ingested=0,
+                    orders_ingested=0,
+                    shipments_ingested=0,
+                    evidence_ingested=cnt,
+                    errors=errs
+                )
+            elif "return" in filename or rt in {"official_returns", "returns"}:
+                from app.services.official_adapter import OfficialDataAdapter
+                cnt, errs = OfficialDataAdapter.ingest_returns_csv(db, csv_str, filename)
+                return IngestResult(
+                    success=len(errs) == 0,
+                    charges_ingested=0,
+                    orders_ingested=0,
+                    shipments_ingested=0,
+                    evidence_ingested=cnt,
+                    errors=errs
+                )
+
+            # Standard synthetic/custom CSV types
             if not record_type:
                 raise HTTPException(
                     status_code=400,
-                    detail="record_type (charges, orders, shipments, evidence) is required when uploading CSV"
+                    detail="record_type (charges, orders, shipments, evidence) is required when uploading custom CSV"
                 )
-            rt = str(record_type).strip().lower()
             if rt not in {"charges", "orders", "shipments", "evidence"}:
                 raise HTTPException(
                     status_code=400,
-                    detail="record_type must be one of: charges, orders, shipments, evidence"
+                    detail="record_type must be one of: charges, orders, shipments, evidence, or official Cube types (fee_report, receiving, prep, pack, returns)"
                 )
             try:
-                return IngestionService.ingest_csv_content(db, rt, content.decode("utf-8"))
+                return IngestionService.ingest_csv_content(db, rt, csv_str)
             except Exception as e:
                 raise HTTPException(status_code=400, detail=f"Failed parsing CSV: {str(e)}")
         else:
