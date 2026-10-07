@@ -344,28 +344,32 @@ backend/app/
 │   ├── evidence.py             # Global evidence query, charge-specific evidence query
 │   ├── assessments.py          # Deterministic assessment retrieval
 │   ├── dashboard.py            # Aggregate summary metrics, live evidence health endpoint
-│   ├── ingest.py               # JSON body & multipart CSV ingestion handlers
+│   ├── ingest.py               # JSON body & multipart CSV ingestion handlers (with official auto-detect)
+│   ├── official.py             # Official Cube dataset endpoints (/status, /ingest, /evaluation, /feedback/simulate)
 │   └── ai.py                   # AI status, single charge AI investigation trigger
 ├── models/
-│   └── entities.py             # SQLAlchemy ORM models (8 core entities)
+│   └── entities.py             # SQLAlchemy ORM models (with unit_id & source_dataset)
 ├── schemas/
 │   ├── entities.py             # Pydantic models for charges, evidence, ingestion
 │   ├── auth.py                 # Authentication request/response validation schemas
 │   ├── ai.py                   # AI agent output, LLM reasoning schema, status schemas
-│   ├── health.py               # Evidence health metrics and gap item models
+│   ├── health.py               # Evidence health metrics, gap items (with responsible_stage)
 │   └── investigation.py        # Graph nodes, edges, timeline events schemas
 └── services/
     ├── auth.py                 # Password hashing (PBKDF2), session generation, user retrieval
     ├── seed_data.py            # 8-scenario comprehensive demo dataset
+    ├── official_adapter.py     # Official Cube Build-A-Thon CSV parser and normalizer
+    ├── official_evaluation.py  # Evaluation pipeline measuring empirical properties on official dataset
+    ├── feedback.py             # Closed-Loop Evidence Feedback Service (upstream routing & re-investigation)
     ├── ingestion.py            # Pydantic-validated parsing of JSON and CSV files
-    ├── resolution.py           # Deterministic entity resolution (Charge->Shipment->Order->SKU)
-    ├── evidence.py             # Evidence retrieval and charge reason domain mapping
+    ├── resolution.py           # Deterministic entity resolution (with unit_id isolation)
+    ├── evidence.py             # Evidence retrieval and charge reason domain mapping (with unit isolation)
     ├── vector_retrieval.py     # In-memory TF-IDF semantic vector space search
     ├── charge_understanding.py # Keyword regex classification into dispute categories
     ├── assessment.py           # Deterministic decision engine (SUPPORTED/CONTRADICTED/SILENT)
     ├── claims.py               # Exact defensible claim amount calculator
     ├── agent.py                # AI Recovery Agent orchestrator
-    ├── llm.py                  # Gemini/OpenAI HTTP client with fallback & JSON enforcement
+    ├── llm.py                  # Gemini/OpenAI HTTP client with circuit breaker & fallback
     ├── tools.py                # Relational lookup tools for agent execution
     ├── investigation.py        # Graph node/edge generator and chronological timeline builder
     └── health.py               # Comprehensive database health audit and gap detection
@@ -407,6 +411,8 @@ The persistence tier is managed via SQLAlchemy 2.0 ORM. The default implementati
   │ shipment_id (String(100), nullable, index)             │
   │ order_id (String(100), nullable, index)                │
   │ sku (String(100), nullable, index)                     │
+  │ unit_id (String(100), nullable, index)                 │
+  │ source_dataset (String(50), default="internal")        │
   │ reason (String(255), index)                            │
   │ amount (Float)                                         │
   │ currency (String(10), default="USD")                   │
@@ -453,6 +459,8 @@ The persistence tier is managed via SQLAlchemy 2.0 ORM. The default implementati
   │ shipment_id (String(100), nullable, index)             │
   │ order_id (String(100), nullable, index)                │
   │ sku (String(100), nullable, index)                     │
+  │ unit_id (String(100), nullable, index)                 │
+  │ source_dataset (String(50), default="internal")        │
   │ result (String(50)) [PASS, FAIL, VERIFIED, DISCREPANCY]│
   │ description (Text)                                     │
   │ timestamp (DateTime, default=utc_now)                  │
