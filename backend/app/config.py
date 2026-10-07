@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Phase 2 LLM Configuration
     LLM_API_KEY: Optional[str] = None
-    LLM_MODEL: str = "gemini-1.5-flash"
+    LLM_MODEL: str = "gemini-3.8-flash"
     LLM_BASE_URL: Optional[str] = None
     EMBEDDING_MODEL: str = "text-embedding-004"
 
