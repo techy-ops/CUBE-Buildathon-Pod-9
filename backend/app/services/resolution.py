@@ -16,11 +16,16 @@ class EntityResolutionService:
         - NEVER guesses
         - If unable to link reliably, marks unresolved safely
         """
+        unit_id = getattr(charge, "unit_id", None)
         shipment_id = charge.shipment_id
         order_id = charge.order_id
         sku = charge.sku
         notes: List[str] = []
         path_elements = [f"charge({charge.charge_id})"]
+
+        if unit_id:
+            path_elements.append(f"unit({unit_id})")
+            notes.append(f"Official Cube unit identifier: '{unit_id}'")
 
         # Step 1: Check shipment_id
         if shipment_id:
@@ -77,7 +82,8 @@ class EntityResolutionService:
             else:
                 notes.append(f"No shipment found for order_id '{order_id}'")
         else:
-            notes.append("Charge has neither shipment_id nor order_id; safe entity resolution not possible")
+            if not unit_id:
+                notes.append("Charge has neither shipment_id nor order_id; safe entity resolution not possible")
 
         # Step 3: Check order
         if order_id:
@@ -99,7 +105,10 @@ class EntityResolutionService:
         # Step 4: Determine resolution status
         if shipment_id and order_id and sku:
             resolution_status = "RESOLVED"
-        elif shipment_id or order_id:
+        elif (shipment_id or order_id) and sku:
+            # If inbound defect fee or inventory adjustment where order is not applicable, but unit and shipment are known
+            resolution_status = "RESOLVED" if unit_id else "PARTIALLY_RESOLVED"
+        elif shipment_id or order_id or unit_id:
             resolution_status = "PARTIALLY_RESOLVED"
         else:
             resolution_status = "UNRESOLVED"
@@ -111,6 +120,7 @@ class EntityResolutionService:
             shipment_id=shipment_id,
             order_id=order_id,
             sku=sku,
+            unit_id=unit_id,
             resolution_status=resolution_status,
             resolution_path=resolution_path,
             notes=notes

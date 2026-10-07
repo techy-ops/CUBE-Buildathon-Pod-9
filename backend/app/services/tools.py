@@ -44,6 +44,7 @@ def search_evidence(
     shipment_id: Optional[str] = None,
     order_id: Optional[str] = None,
     sku: Optional[str] = None,
+    unit_id: Optional[str] = None,
     evidence_types: Optional[List[str]] = None
 ) -> List[Evidence]:
     """
@@ -51,6 +52,8 @@ def search_evidence(
     Never invents or fabricates evidence.
     """
     clauses = []
+    if unit_id:
+        clauses.append(Evidence.unit_id == unit_id)
     if shipment_id:
         clauses.append(Evidence.shipment_id == shipment_id)
     if order_id:
@@ -75,6 +78,9 @@ def search_evidence(
     deduped = []
     for r in records:
         if r.evidence_id not in seen:
+            # If search specifies unit_id, do not attach records from another unit
+            if unit_id and r.unit_id and r.unit_id != unit_id:
+                continue
             seen.add(r.evidence_id)
             deduped.append(r)
     return deduped
@@ -103,7 +109,9 @@ def assess_evidence(charge: Charge, evidence_items: List[Evidence]) -> Dict[str,
     valid_items = []
     for ev in evidence_items:
         if ev.timestamp and charge.charge_date:
-            if ev.timestamp <= charge.charge_date or ev.evidence_type == "returns":
+            ev_date = ev.timestamp.date() if hasattr(ev.timestamp, "date") else ev.timestamp
+            chg_date = charge.charge_date.date() if hasattr(charge.charge_date, "date") else charge.charge_date
+            if ev.timestamp <= charge.charge_date or ev_date <= chg_date or ev.evidence_type == "returns":
                 valid_items.append(ev)
         else:
             valid_items.append(ev)
