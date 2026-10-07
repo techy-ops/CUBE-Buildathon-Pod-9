@@ -229,4 +229,53 @@ export async function fetchEvidenceHealth() {
   return res.json();
 }
 
+// --- Official Cube Data & Evaluation APIs ---
+export async function fetchOfficialStatus() {
+  const res = await fetch(`${API_BASE}/official/status`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) throw new Error(`Failed to fetch official status: ${res.statusText}`);
+  return res.json();
+}
+
+export async function ingestOfficialData(clearExisting = false) {
+  const res = await fetch(`${API_BASE}/official/ingest?clear_existing=${clearExisting}`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'Failed to ingest official Cube data');
+  }
+  return res.json();
+}
+
+export async function fetchOfficialEvaluation() {
+  const res = await fetch(`${API_BASE}/official/evaluation`, {
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) throw new Error(`Failed to fetch official evaluation: ${res.statusText}`);
+  return res.json();
+}
+
+export async function simulateEvidenceFeedback({ chargeId, upstreamStage, result = 'PASS', description = null }) {
+  const query = new URLSearchParams({
+    charge_id: chargeId,
+    upstream_stage: upstreamStage,
+    result: result
+  });
+  if (description) {
+    query.set('description', description);
+  }
+  const res = await fetch(`${API_BASE}/feedback/simulate?${query.toString()}`, {
+    method: 'POST',
+    headers: getAuthHeaders()
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'Failed to submit evidence feedback');
+  }
+  return res.json();
+}
+
 
