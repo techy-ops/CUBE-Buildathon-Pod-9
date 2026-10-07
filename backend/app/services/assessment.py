@@ -60,8 +60,9 @@ class AssessmentService:
             valid_evidence: List[Evidence] = []
             for ev in relevant_evidence:
                 if ev.timestamp and charge.charge_date:
-                    # Allow slight timezone or same-day buffer (e.g. charge logged same day)
-                    if ev.timestamp <= charge.charge_date:
+                    ev_date = ev.timestamp.date() if hasattr(ev.timestamp, "date") else ev.timestamp
+                    chg_date = charge.charge_date.date() if hasattr(charge.charge_date, "date") else charge.charge_date
+                    if ev.timestamp <= charge.charge_date or ev_date <= chg_date:
                         valid_evidence.append(ev)
                     else:
                         # Evidence logged after charge might be subsequent inspection or return

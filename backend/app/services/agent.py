@@ -51,6 +51,7 @@ class RecoveryAgent:
             shipment_id=resolution.shipment_id,
             order_id=resolution.order_id,
             sku=resolution.sku,
+            unit_id=getattr(charge, "unit_id", None) or resolution.unit_id,
             evidence_types=evidence_types
         )
 
